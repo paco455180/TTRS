@@ -1,0 +1,1613 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>台灣創傷登錄年報 — 產出項目 × 欄位對應互動總覽</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#FAFAF6; --paper:#FFFFFF; --ink:#20241F; --muted:#6B726B; --line:#E1E0D8;
+  --red:#B8402F; --amber:#c98a00; --green:#2E7D52; --slate:#2C3B3E; --slate-tint:#EEF2F1;
+  --blue:#2f5a99; --purple:#7a4fb3; --chart-grid:#e6e4da;
+}
+*{box-sizing:border-box;}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:'Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif;line-height:1.7;}
+.wrap{max-width:1060px;margin:0 auto;padding:40px 24px 120px;}
+
+header.hero{border-bottom:2px solid var(--slate);padding-bottom:22px;margin-bottom:20px;}
+header.hero .eyebrow{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;}
+header.hero h1{font-family:'Noto Serif TC',serif;font-size:26px;margin:10px 0 12px;}
+header.hero p{color:#3A403C;font-size:14px;max-width:860px;margin:0 0 10px;}
+
+.statsrow{display:flex;gap:14px;flex-wrap:wrap;margin:18px 0 6px;}
+.statsrow .st{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:10px 18px;text-align:center;min-width:110px;}
+.statsrow .st b{display:block;font-family:'Noto Serif TC',serif;font-size:26px;color:var(--slate);line-height:1.2;}
+.statsrow .st span{font-size:12px;color:var(--muted);}
+
+.disclaimer{background:#FDF6EC;border:1px dashed var(--amber);border-radius:8px;padding:12px 16px;margin:14px 0 20px;font-size:13px;color:#7a5a10;}
+.disclaimer b{color:#8a5a00;}
+
+.tabs{display:flex;gap:8px;position:sticky;top:0;background:var(--bg);padding:12px 0 10px;z-index:30;border-bottom:1px solid var(--line);flex-wrap:wrap;align-items:center;}
+.tabbtn{font-family:'Noto Sans TC',sans-serif;font-size:14px;font-weight:700;background:#fff;color:var(--slate);border:1px solid var(--slate);padding:9px 20px;border-radius:22px;cursor:pointer;}
+.tabbtn.active{background:var(--slate);color:#fff;}
+.tabbtn:hover{opacity:.88;}
+#search{margin-left:auto;border:1px solid var(--line);border-radius:20px;padding:8px 16px;font-size:13px;font-family:inherit;background:#fff;min-width:220px;}
+#search:focus{outline:2px solid var(--slate);}
+
+h2.chap{font-family:'Noto Serif TC',serif;font-size:20px;margin:40px 0 2px;display:flex;align-items:center;gap:10px;scroll-margin-top:90px;}
+h2.chap .badge{font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--slate);color:#fff;padding:3px 9px;border-radius:4px;}
+h2.chap .twtag{font-size:11px;background:var(--green);color:#fff;padding:2px 8px;border-radius:10px;font-family:'Noto Sans TC';font-weight:500;}
+.chap-sub{color:var(--muted);font-size:13px;margin:0 0 16px;padding-bottom:8px;border-bottom:1px dashed var(--line);}
+
+/* indicator card */
+.icard{background:var(--paper);border:1px solid var(--line);border-left:5px solid var(--blue);border-radius:8px;margin-bottom:12px;overflow:hidden;}
+.icard.tw{border-left-color:var(--green);}
+.icard .head{display:flex;gap:14px;align-items:center;padding:12px 18px;cursor:pointer;}
+.icard .head:hover{background:#F6F8F5;}
+.icard .thumb{flex:0 0 96px;height:58px;background:#fcfcfb;border:1px solid var(--chart-grid);border-radius:5px;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.icard .tmain{flex:1;min-width:0;}
+.icard .iname{font-size:15px;font-weight:700;}
+.icard .iname .icode{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);font-weight:500;margin-right:6px;}
+.icard .imeta{display:flex;gap:6px;flex-wrap:wrap;margin-top:3px;align-items:center;}
+.statchip{font-size:11px;background:var(--slate-tint);color:var(--slate);padding:1px 8px;border-radius:9px;}
+.ibadge{font-family:'JetBrains Mono',monospace;font-size:10px;padding:1px 6px;border-radius:3px;border:1px solid;}
+.ibadge.vstr{color:#1c5c8a;border-color:#9cc3dd;background:#eef6fb;}
+.ibadge.jtdb{color:#8a2c4a;border-color:#dda9bb;background:#fbeef3;}
+.ibadge.tarn{color:#4a3c8a;border-color:#b9addd;background:#f2effb;}
+.ibadge.ntds{color:#7a5510;border-color:#ddc99c;background:#fbf6ea;}
+.ibadge.kh{color:#1f6b47;border-color:#a3d1bb;background:#eefbf4;}
+.icard .arrow{color:var(--muted);font-size:14px;flex:0 0 auto;}
+
+/* ══ MODAL ══ */
+.overlay{position:fixed;inset:0;background:rgba(32,36,31,.45);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+ z-index:300;display:none;align-items:center;justify-content:center;padding:22px;}
+.overlay.show{display:flex;animation:fadeIn .18s ease;}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal{background:var(--paper);border-radius:12px;max-width:780px;width:100%;max-height:88vh;display:flex;flex-direction:column;
+ box-shadow:0 24px 70px rgba(0,0,0,.35);overflow:hidden;animation:popIn .2s ease;}
+@keyframes popIn{from{transform:translateY(14px) scale(.98);opacity:0}to{transform:none;opacity:1}}
+.mhead{display:flex;align-items:center;gap:10px;padding:13px 18px;background:var(--slate);color:#fff;flex:0 0 auto;}
+.mhead .mtitle{font-family:'Noto Serif TC',serif;font-size:17px;flex:1;min-width:0;line-height:1.4;}
+.mhead .mtitle .mcode{font-family:'JetBrains Mono',monospace;font-size:12px;opacity:.75;margin-right:8px;}
+.mhead button{background:rgba(255,255,255,.12);color:#fff;border:none;border-radius:8px;width:34px;height:34px;
+ font-size:16px;cursor:pointer;flex:0 0 auto;display:flex;align-items:center;justify-content:center;}
+.mhead button:hover{background:rgba(255,255,255,.25);}
+.mhead button.mback{display:none;}
+.mhead button.mback.show{display:flex;}
+.mbody{padding:18px 22px 22px;overflow-y:auto;background:#FDFDFB;}
+.mbody .demo{background:#fff;border:1px solid var(--chart-grid);border-radius:6px;padding:12px 14px 8px;margin-bottom:14px;}
+.mbody .demo .dcap{font-size:11px;color:var(--muted);margin-top:4px;font-family:'JetBrains Mono',monospace;}
+body.modal-open{overflow:hidden;}
+.blocklbl{font-size:12px;font-weight:700;color:var(--slate);letter-spacing:.05em;margin:12px 0 6px;display:flex;align-items:center;gap:8px;}
+.blocklbl::after{content:'';flex:1;border-top:1px dashed var(--line);}
+.fchips{display:flex;gap:6px;flex-wrap:wrap;}
+.fchip{font-size:12px;border-radius:5px;padding:3px 9px;cursor:pointer;border:1px solid;display:inline-flex;gap:6px;align-items:center;font-family:inherit;background:#fff;}
+.fchip code{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;}
+.fchip.core{border-color:#9cb8d8;color:#23486e;background:#f0f5fb;}
+.fchip.opt{border-color:#d8c49c;color:#6e5523;background:#fbf7f0;}
+.fchip:hover{outline:2px solid var(--slate);}
+.tierline{font-size:12px;color:var(--muted);margin-top:8px;}
+.tierline b.c{color:#23486e;}
+.tierline b.o{color:#8a6a1a;}
+.calc{font-size:13.5px;background:#F7FAFC;border-left:3px solid var(--slate);padding:10px 14px;border-radius:4px;color:#2c3430;}
+.calc b{color:var(--slate);}
+.stat{font-size:13.5px;background:#F5F8F4;border-left:3px solid var(--green);padding:10px 14px;border-radius:4px;color:#2c3430;}
+.intl-list{display:flex;flex-direction:column;gap:6px;}
+.intl-item{display:flex;gap:10px;font-size:13px;align-items:baseline;}
+.intl-item .val{color:#3A403C;}
+.note{font-size:12.5px;color:#7a5a10;background:#FDF6EC;border-radius:5px;padding:8px 12px;margin-top:10px;}
+.plainbox{background:#F3F8F3;border-left:3px solid var(--green);border-radius:4px;padding:12px 14px;display:flex;flex-direction:column;gap:9px;}
+.plainbox .prow{display:flex;gap:10px;font-size:13.5px;line-height:1.75;align-items:flex-start;}
+.plainbox .plbl{flex:0 0 118px;font-weight:700;color:var(--green);font-size:12.5px;padding-top:1px;}
+@media(max-width:520px){.plainbox .prow{flex-direction:column;gap:2px;}.plainbox .plbl{flex:none;}}
+
+/* field view */
+h2.fcat{font-family:'Noto Serif TC',serif;font-size:19px;margin:36px 0 2px;display:flex;align-items:center;gap:10px;scroll-margin-top:90px;}
+h2.fcat .badge{font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--slate);color:#fff;padding:3px 9px;border-radius:4px;}
+.fcat-sub{color:var(--muted);font-size:13px;margin:0 0 14px;padding-bottom:6px;border-bottom:1px dashed var(--line);}
+.frow{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:12px 18px;margin-bottom:10px;scroll-margin-top:100px;cursor:pointer;transition:background .15s;}
+.frow:hover{background:#F6F8F5;}
+.frow.hl{outline:3px solid var(--amber);}
+.fstat{font-size:11px;padding:1px 9px;border-radius:9px;background:#f0f0ea;color:var(--muted);margin-left:auto;flex:0 0 auto;}
+.fstat.ok{background:#e2f2e9;color:#1f6b47;font-weight:700;}
+.icard.done{border-left-color:var(--green);}
+.gap{cursor:pointer;transition:background .15s;}
+.gap:hover{background:#FBF5F3;}
+.chsug{background:#F7FAF5;border:1px dashed var(--green);border-radius:8px;padding:12px 18px;margin:4px 0 26px;}
+.chsug .cs-t{font-size:13.5px;font-weight:700;color:var(--green);margin-bottom:6px;}
+.frow .fh{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;}
+.frow .fh code{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:13px;color:var(--slate);}
+.frow .fh .fn{font-size:15px;font-weight:700;}
+.tierbadge{font-size:10.5px;padding:1px 8px;border-radius:9px;font-weight:500;}
+.tierbadge.core{background:#e3edf8;color:#23486e;}
+.tierbadge.opt{background:#f8f0dd;color:#8a6a1a;}
+.frow .fdef{font-size:12.5px;color:#4a524c;margin:4px 0 8px;}
+.frow .uses{display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+.frow .uses .ulbl{font-size:11.5px;color:var(--muted);}
+/* ── 問卷填答區（沿用原問卷樣式） ── */
+.ratebox{border-top:1px dashed var(--line);margin-top:10px;padding-top:10px;}
+.scalerow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px;}
+.scalerow .slabel{font-size:12.5px;font-weight:700;min-width:64px;color:var(--slate);}
+.radios{display:flex;gap:3px;flex-wrap:wrap;}
+.radios label{position:relative;cursor:pointer;}
+.radios input{position:absolute;opacity:0;width:0;height:0;}
+.radios .box{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border:1px solid var(--line);border-radius:6px;font-size:13px;font-family:'JetBrains Mono',monospace;background:#fff;color:#555;}
+.radios input:checked + .box{color:#fff;border-color:transparent;font-weight:700;background:var(--slate);}
+.radios.yn .box{width:auto;padding:0 14px;font-family:'Noto Sans TC',sans-serif;}
+.radios.yn input:checked + .box{background:var(--blue);}
+.radios input:focus-visible + .box{outline:2px solid var(--slate);outline-offset:1px;}
+.anchor{font-size:11px;color:var(--muted);}
+textarea.cmt{width:100%;min-height:44px;border:1px solid var(--line);border-radius:6px;padding:8px 10px;font-family:inherit;font-size:13px;background:#FDFDFB;resize:vertical;margin-top:6px;}
+textarea.cmt:focus{outline:2px solid var(--slate);outline-offset:1px;}
+.frow.done{border-left:5px solid var(--green);}
+.respondent{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:18px 22px;margin:6px 0 18px;}
+.respondent h3{font-family:'Noto Serif TC',serif;font-size:16px;margin:0 0 10px;}
+.respondent-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 18px;}
+.respondent-grid label{font-size:12.5px;color:var(--muted);display:block;margin-bottom:4px;}
+.respondent-grid input{width:100%;border:1px solid var(--line);border-radius:6px;padding:8px 10px;font-size:14px;font-family:inherit;background:#FDFDFB;}
+.qtoolbar{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 18px;align-items:center;}
+.qtoolbar button{font-family:'Noto Sans TC',sans-serif;font-size:13px;background:var(--slate);color:#fff;border:none;padding:9px 16px;border-radius:20px;cursor:pointer;}
+.qtoolbar button.secondary{background:#fff;color:var(--slate);border:1px solid var(--slate);}
+.qtoolbar button.danger{background:#fff;color:var(--red);border:1px solid var(--red);}
+.qtoolbar button:hover{opacity:.85;}
+#progress{margin-left:auto;font-size:12.5px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+@media(max-width:720px){.respondent-grid{grid-template-columns:1fr;}}
+.uchip{font-size:11.5px;background:#fff;border:1px solid #b9c8d8;color:#23486e;border-radius:5px;padding:2px 8px;cursor:pointer;font-family:inherit;}
+.uchip:hover{background:var(--slate);color:#fff;border-color:var(--slate);}
+.ucount{font-size:11px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+
+/* gap section */
+.gap{background:var(--paper);border:1px solid var(--line);border-left:5px solid var(--red);border-radius:8px;padding:16px 20px;margin-bottom:12px;}
+.gap .gt{font-size:14.5px;font-weight:700;margin-bottom:2px;}
+.gap .gd{font-size:13px;color:#4a524c;}
+
+.back-to-top{position:fixed;bottom:28px;right:28px;background:var(--slate);color:#fff;border:none;border-radius:50%;
+  width:44px;height:44px;font-size:17px;cursor:pointer;display:none;align-items:center;justify-content:center;
+  box-shadow:0 4px 10px rgba(0,0,0,.2);z-index:99;}
+.back-to-top:hover{background:var(--blue);}
+.hidden{display:none !important;}
+.nores{color:var(--muted);font-size:13px;padding:20px 0;}
+
+/* ══ RWD ══ */
+@media(max-width:900px){
+  .wrap{padding:28px 16px 90px;}
+  header.hero h1{font-size:22px;}
+  .statsrow{gap:8px;}
+  .statsrow .st{min-width:0;flex:1 1 calc(33% - 8px);padding:8px 10px;}
+  .statsrow .st b{font-size:20px;}
+}
+@media(max-width:720px){
+  .icard .thumb{flex:0 0 64px;height:42px;}
+  .icard .head{padding:10px 12px;gap:10px;}
+  .icard .iname{font-size:14px;}
+  .tabs{gap:6px;}
+  .tabbtn{font-size:12.5px;padding:8px 14px;}
+  #search{min-width:0;width:100%;margin-left:0;order:9;}
+  .overlay{padding:0;align-items:stretch;}
+  .modal{max-width:100%;max-height:100%;height:100%;border-radius:0;}
+  .mbody{padding:14px 14px 20px;}
+  .mhead .mtitle{font-size:15px;}
+  .radios .box{width:34px;height:34px;}
+  .radios.yn .box{width:auto;}
+  .frow{padding:10px 12px;}
+  .frow .fh .fn{font-size:14px;}
+  .frow .uses{display:none;}   /* 手機版清單瘦身：支撐產出收進 Modal */
+  .frow .fdef{display:none;}
+  .qtoolbar button{flex:1 1 45%;}
+  #progress{flex:1 1 100%;margin-left:0;text-align:center;}
+  h2.chap{font-size:17px;flex-wrap:wrap;}
+  h2.fcat{font-size:17px;}
+}
+@media(max-width:420px){
+  .statsrow .st{flex:1 1 calc(50% - 8px);}
+  .icard .thumb{display:none;}
+  .radios{gap:2px;}
+  .radios .box{width:30px;height:30px;font-size:12px;}
+}
+@media print{.tabs,.back-to-top,.overlay{display:none;}body{background:#fff;}.icard{break-inside:avoid;}}
+</style>
+</head>
+<body>
+<div class="wrap" id="top">
+  <header class="hero">
+    <span class="eyebrow">台灣創傷登錄標準化 · 115-2314-B-227-001 國科會 主持人 張育通 · 團隊內部參考</span>
+    <h1>創傷登錄年報 — 產出項目 × 欄位對應總覽</h1>
+    <p><b>本計畫期盼匯聚臨床醫療、公衛、資訊與救護等跨領域專家與實務工作者的共識，將『創傷登錄年報』轉化為深具價值的醫療公共財。透過多元意見的融合與數據共享，我們致力於建立以實證為基礎的決策支援體系，並結合人工智慧技術與空間地理資訊分析，精準對焦事故熱點與資源可近性，不僅全面優化第一線創傷照護網絡的品質，更能為未來的區域公共衛生與緊急醫療政策規劃，提供最具說服力與前瞻性的堅實後盾。</b></p>
+    <p><b>本問卷請您評定的對象是「年報產出」：未來創傷登錄年報可呈現的每一項指標、圖與表。</b>
+    我們將 77 項候選產出依章節逐一列出，點開任一項即顯示：示意圖、需要哪些欄位（對應 A01–G06 代碼）、計算方式、統計呈現方法，以及澳洲 VSTR、日本 JTDB、英國 TARN、美國 NTDS/TQIP 年報的國際對照與高雄 2023 年報現況數值。請於彈窗內以 <b>7 點量表評定「重要性」與「可行性」</b>，並勾選該產出應為<b>「必要」或「選配」</b>——獲共識納入的產出，其所需欄位即反推為登錄系統應收欄位。</p>
+  </header>
+
+  <div class="statsrow" id="statsrow"></div>
+
+  <div class="disclaimer">
+    <b>【閱讀說明】</b>
+    ① 各項目之示意小圖為<b>假資料示意</b>（部分借用高雄 2023 實際數字），僅呈現「這張圖表長什麼樣」。
+    ② 欄位標示之「<b>核心傾向</b>／<b>進階傾向</b>」為團隊暫定分級，<b>最終以 Delphi 共識結果為準</b>。
+    ③ 標示 <span style="background:var(--green);color:#fff;border-radius:8px;padding:0 7px;font-size:11px;">台灣特色</span> 者為四國年報未呈現、台灣可獨有之項目。
+  </div>
+
+  <div class="tabs">
+    <button class="tabbtn active" id="tabA" onclick="switchTab('A')">① 年報產出評分問卷（依章節）</button>
+    <button class="tabbtn" id="tabB" onclick="switchTab('B')">② 欄位反查（參考資料）</button>
+    <input id="search" type="search" placeholder="搜尋：指標名稱或欄位代碼（如 B04、ISS）" oninput="doSearch()">
+  </div>
+
+  <div id="viewA"></div>
+  <div id="viewB" class="hidden"></div>
+
+</div>
+<button class="back-to-top" id="backToTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="回到頂端">▲</button>
+
+<!-- MODAL -->
+<div class="overlay" id="overlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="mhead">
+      <button class="mback" id="mback" onclick="modalBack()" title="返回上一層">←</button>
+      <div class="mtitle" id="mtitle"></div>
+      <button onclick="closeModal()" title="關閉">✕</button>
+    </div>
+    <div class="mbody" id="mbody"></div>
+  </div>
+</div>
+<script>
+/* ══════════════ 資料層：問卷 69 欄位 ══════════════ */
+const CATS = {
+ A:"事故與空間資訊", B:"院前資訊", C:"病人基本資料", D:"傷害評估",
+ E:"院內照護", F:"結果指標", G:"系統與轉院資訊（台灣特有）"
+};
+/* tier: core=核心傾向, opt=進階傾向（暫定，以 Delphi 結果為準） */
+const FIELDS = [
+ ["A01","到院方式","core","病患抵達急診的方式（119救護車／自行前來／他院轉入）"],
+ ["A02","事故發生日期","core","創傷事件發生日期（以119救護紀錄表時間為準）"],
+ ["A03","事故地點 GPS 座標","opt","事故現場經緯度，限119送達者，供GIS空間分析"],
+ ["A04","事故地點地址","opt","事故現場文字地址，補足GPS未介接時之實務現況"],
+ ["A05","事故地點行政區","core","事故發生縣市與鄉鎮市區，空間流行病學基礎欄位"],
+ ["A06","事故發生場所類型","core","依ICD規範之場所分類（道路、住家、工廠、學校等）"],
+ ["A07","傷害機轉（ICD-10外因碼）","core","外部原因標準編碼（V碼車禍、W碼跌倒墜落等）"],
+ ["A08","交通事故傷患身份","opt","交通事故中角色（汽車駕駛、機車乘客、行人等）"],
+ ["A09","安全防護設備使用","opt","是否使用安全帶、安全帽、兒童座椅、安全氣囊等"],
+ ["A10","傷害意圖","core","意外／蓄意自傷／蓄意他傷／判定未明"],
+ ["A11","是否為職業傷害","opt","是否與執行職務或通勤相關"],
+ ["B01","院前救護案號（TEMSIS ID）","opt","消防局電子救護紀錄表案號，院前—院內串接唯一金鑰"],
+ ["B02","民眾報案時間（119接獲）","opt","119勤務中心接獲報案時間，系統反應時間軸起點"],
+ ["B03","EMS 派遣時間","opt","119指揮中心派遣救護車出勤時間"],
+ ["B04","EMS 到達現場時間","opt","救護人員抵達事故現場時間"],
+ ["B05","EMS 離開現場時間","opt","救護車離開現場開始送醫時間"],
+ ["B06","到達急診時間","core","病患實體抵達急診時間，串接院前與院內時序"],
+ ["B07","院前 GCS（E/V/M）","opt","救護人員現場評估之昏迷指數三分項"],
+ ["B08","院前收縮壓（SBP）","opt","現場量測收縮壓，院前休克評估指標"],
+ ["B09","院前呼吸速率","opt","現場量測每分鐘呼吸次數"],
+ ["B10","院前心跳速率","opt","現場量測每分鐘脈搏／心跳次數"],
+ ["B11","院前 SpO₂","opt","現場量測血氧飽和度（含是否已給氧）"],
+ ["B12","院前進階呼吸道","opt","到院前氣管內管或聲門上呼吸道置入"],
+ ["B13","院前靜脈輸液","opt","到院前IV管路建立與輸液給予"],
+ ["B14","止血帶使用","opt","到院前是否使用止血帶控制大出血"],
+ ["B15","止血帶綁上時間","opt","院前綁上止血帶之確切時間"],
+ ["B16","止血帶卸除時間","opt","到院後卸除止血帶之時間，計算總留置時間"],
+ ["B17","是否為直升機救護（HEMS）","opt","是否經航空器／直升機醫療後送"],
+ ["B18","院前心跳停止","opt","到院前是否曾OHCA（含CPR時間）"],
+ ["B19","第一線救護員層級","opt","現場最高層級救護人員（EMT-1/2/P）"],
+ ["B20","EMS 目的地合規性","opt","後送目的地是否符合衛生局創傷分流指引"],
+ ["C01","出生年月日","core","病患出生日期，年齡由系統自動推算"],
+ ["C02","性別（出生時生理性別）","core","出生時生理性別"],
+ ["C03","保險狀態／健保類別","core","就醫時醫療保險身分（健保、自費、勞保等）"],
+ ["C04","主要共病（既有疾病）","core","受傷前已具備之慢性疾病（糖尿病、高血壓等）"],
+ ["D01","AIS（台灣健保6部位版）","core","各解剖部位簡明創傷分數，對齊健保申報6部位格式"],
+ ["D02","ISS（傷害嚴重度分數）","core","AIS最嚴重三部位最高分平方和；ISS>12為重大創傷"],
+ ["D03","NISS（新傷害嚴重度分數）","opt","不分部位取前三高AIS平方和，對穿透傷預測較佳"],
+ ["D04","ICD-10 傷害診斷碼","core","病歷ICD-10創傷診斷編碼，健保申報已含"],
+ ["D05","傷害類型（鈍/穿透/燒）","core","創傷基本機轉大類"],
+ ["D06","到院時 GCS（E/V/M）","core","抵達急診時初步昏迷指數三分項"],
+ ["D07","到院時收縮壓","core","抵達急診首次SBP"],
+ ["D08","到院時呼吸速率","core","抵達急診首次呼吸次數"],
+ ["D09","到院時心跳速率","core","抵達急診首次脈搏／心跳"],
+ ["D10","到院時體溫","core","抵達急診首次核心體溫（死亡三角之低體溫）"],
+ ["D11","外傷小組啟動","core","是否啟動院內外傷小組機制"],
+ ["D12","燒傷面積（%TBSA）","opt","二、三度燒傷佔全身體表面積百分比"],
+ ["E01","到院後手術（急診首次外傷手術）","core","本次創傷第一次手術處置及術式碼"],
+ ["E02","外傷小組醫師到達時間","opt","啟動後專責醫師抵達床邊時間"],
+ ["E03","ICU 入住（是否/天數）","core","是否曾入加護病房及入住總天數"],
+ ["E04","呼吸器使用天數","core","插管使用侵入性呼吸器總天數"],
+ ["E05","輸血（PRBC等）","core","急診或住院期間各類血品輸注總量"],
+ ["E06","血管攝影（栓塞治療）","opt","是否接受介入性血管攝影及動脈栓塞止血"],
+ ["E07","壓瘡","opt","住院期間是否新發生壓瘡（護理品質指標）"],
+ ["E08","是否轉院（及轉院時間）","core","是否轉往他院及實際離院時間"],
+ ["E09","撤除生命維持","opt","是否簽署並執行撤除維生醫療"],
+ ["E10","是否有 DNR","opt","在院期間是否簽署DNR，死亡率校正必備"],
+ ["F01","院內死亡","core","是否於本次急診或住院期間死亡（最核心結果指標）"],
+ ["F02","住院天數（總住院/ICU）","core","入院至出院總天數"],
+ ["F03","出院去向","core","離院流向（返家、長照機構、病危自動出院等）"],
+ ["F04","出院功能狀態（GOS-E）","opt","格拉斯哥預後量表擴充版評估出院功能"],
+ ["F05","兒科功能預後（KOSCHI）","opt","兒科專用功能與神經預後評分"],
+ ["F06","6/12/24個月功能預後（EQ-5D-5L）","opt","出院後長期追蹤生活品質分數"],
+ ["G01","健保投保類別","opt","第一至六類投保身分，社經地位代理指標"],
+ ["G02","救護員執照層級（EMT-1/2/P）","opt","台灣三級制，負責處置之最高層級"],
+ ["G03","到院前檢傷級數","core","119現場評估之緊急程度檢傷分級"],
+ ["G04","轉診醫療院所代碼","core","轉診來源醫院健保代碼，系統自動轉譯層級"],
+ ["G05","目擊者 CPR","opt","OHCA時旁人是否先行CPR（對齊Utstein標準）"],
+ ["G06","是否為離島（金馬澎）","opt","事故地點是否位於離島（跨海後送時效）"]
+];
+
+/* ══════════════ 章節 ══════════════ */
+const CHAPTERS = [
+ [1,"年度創傷概覽","Year at a Glance","全年收案總覽與關鍵指標速覽——年報的第一印象",false],
+ [2,"人口特徵","Demographics","誰受傷了：年齡、性別、共病與社經背景",false],
+ [3,"受傷機轉與傷因","Cause of Injury","怎麼受傷的：機轉、意圖、交通身份與防護設備",false],
+ [4,"事故地點與時間","Location & Time","何時何地受傷：場所、行政區、時間分布",false],
+ [5,"受傷部位與嚴重度","Injury & Severity","傷在哪裡、多嚴重：AIS/ISS/NISS 與頭部外傷",false],
+ [6,"院前救護指標","Prehospital / EMS","119 救護全時間軸與處置品質——問卷 B 類欄位的主戰場",false],
+ [7,"院內照護與處置","In-hospital Care","外傷小組、手術、ICU、輸血與轉院",false],
+ [8,"住院結果","Hospital Outcomes","死亡、出院去向與住院天數",false],
+ [9,"風險校正與系統品質指標","Risk Adjustment & QI","TRISS/Ps、W統計量、校正死亡率——院際比較的科學基礎",false],
+ [10,"長期預後追蹤","Long-term Outcomes","出院不是終點：GOS-E、KOSCHI、EQ-5D-5L",false],
+ [11,"空間分析","Spatial Analysis","從熱點地圖、GWR 到空間掃描與 AI 預測共 12 項——四國年報皆無、台灣可獨有的完整空間分析系列",true]
+];
+
+/* ══════════════ 年報產出目錄 ══════════════
+ viz.t: bar|hbar|line|pie|hist|stack|box|gauge|num|matrix|map|funnel|scatter */
+const IND = [
+/* ── 第 1 章 年度創傷概覽 ── */
+{id:"1-1",ch:1,name:"登錄病例總數與年度趨勢",viz:{t:"line",d:[880,940,1010,980,1048]},
+ f:["A02","D04","D02"],
+ calc:"依收案條件（因急性創傷住院、急診轉院、急診死亡）納入之病例，以 ICD-10 傷害診斷碼（D04）判定收案、依事故日期（A02）歸年；發生率需外部人口分母（戶政資料）。",
+ stat:"n、每十萬人口年發生率；跨年趨勢以發生率比 IRR（95% CI, p 值）檢定。",
+ intl:[["VSTR","4,235 例、62/10萬，發生率上升 IRR 1.03 (1.01–1.05)（Fig 2）"],["JTDB","五年累計 176,054 例、302 家醫院"],["KH","2023 年 1,048 例"]]},
+{id:"1-2",ch:1,name:"重大創傷比例（ISS>12）",viz:{t:"gauge",d:21.6},
+ f:["D01","D02"],
+ calc:"由 AIS（D01）計算 ISS（D02），統計 ISS>12（或 ISS≥16）之病例比例。國際上「重大創傷」之操作型定義即以此為核心（VSTR 另納入死亡、ICU>24hr 通氣、緊急手術、燒傷≥20%）。",
+ stat:"n（%）；可依醫院層級分層呈現 ISS 中位數。",
+ intl:[["VSTR","已知 ISS 者 89.0% ISS>12（其收案即以重大創傷為主）；MTS 最終照護者 ISS 中位數 17"],["JTDB","ISS≥16 佔 31.6%"],["KH","ISS≥16 佔 21.6%（226 例）"]]},
+{id:"1-3",ch:1,name:"年度速覽儀表板（Year at a Glance）",viz:{t:"num",d:"1,048"},
+ f:["A02","A07","C01","C02","D02","D11","F01","F02","B20","E01"],
+ calc:"整合全年關鍵數字成一頁大字卡：總病例、主要機轉佔比、性別、ISS 中位、死亡率、手術率、LOS、適當派遣率等。",
+ stat:"大數字＋百分比之資訊圖，附去年同期對照。",
+ intl:[["VSTR","年報 p.8–10 整頁資訊圖（4,235 例、男 68.4%、週末 33.6%…）"],["KH","封面統計卡與年度概覽章"]]},
+
+/* ── 第 2 章 人口特徵 ── */
+{id:"2-1",ch:2,name:"年齡層分布",viz:{t:"bar",d:[4,6,9,12,14,18,21,13,3]},
+ f:["C01","A02"],
+ calc:"年齡＝事故發生日期（A02）− 出生年月日（C01），由系統自動推算後分組（如 0–14、15–24⋯85+）。",
+ stat:"各年齡組 n（%）長條圖；可加性別交叉。",
+ intl:[["JTDB","Table 3：年齡×性別交叉計數，80–84 歲最多（20,395 例）"],["VSTR","Fig 3b 六年齡組×五年"],["KH","60–79 歲佔 34.3%"]]},
+{id:"2-2",ch:2,name:"性別分布",viz:{t:"pie",d:[[ "女",52.8],["男",47.2]]},
+ f:["C02"],
+ calc:"出生時生理性別（C02）之單欄統計。",
+ stat:"n（%）圓餅／長條。",
+ intl:[["VSTR","男性 68.4%"],["JTDB","Table 7 性別×年齡×存亡"],["KH","女 52.8%／男 47.2%（跌倒為主的族群結構）"]]},
+{id:"2-3",ch:2,name:"年齡別發生率趨勢",viz:{t:"line",d:[310,330,360,420,461]},
+ f:["C01","A02"],
+ calc:"各年齡組病例數 ÷ 該年齡組人口數（外部戶政分母），逐年計算。",
+ stat:"每十萬同齡人口率折線；趨勢以 IRR（95% CI）檢定。",
+ intl:[["VSTR","Fig 3a：>84 歲組 307→461/10萬，IRR 1.10 (1.07–1.14) — 高齡海嘯的關鍵證據"]],
+ note:"此圖是向政府論述「高齡跌倒防治」資源的最有力圖表。"},
+{id:"2-4",ch:2,name:"高齡創傷專題（≥65 歲）",viz:{t:"hbar",d:[["跌倒",78],["車禍",15],["其他",7]]},
+ f:["C01","A07","D01","D02","F01"],
+ calc:"篩選 ≥65 歲病例，交叉機轉（A07）、頭部外傷（D01 頭部 AIS>2）、嚴重度與死亡。",
+ stat:"n（%）；高齡低處跌倒之頭部外傷比例、致死率。",
+ intl:[["VSTR","低處跌倒者 82.8% 為 65 歲以上、52% 合併頭部外傷；院內死亡 76% 為 65 歲以上"]]},
+{id:"2-5",ch:2,name:"共病分布與死亡關聯",viz:{t:"hbar",d:[["高血壓",34],["糖尿病",22],["心臟病",12],["無共病",41]]},
+ f:["C04","F01"],
+ calc:"主要共病（C04）分布；與院內死亡（F01）交叉，作為死亡率校正之干擾因子。",
+ stat:"n（%）；共病者 vs 無共病者之粗死亡率比較。",
+ intl:[["NTDS","收 33 項既有共病（抗凝血劑、失智、肝硬化⋯），為 TQIP 風險校正輸入"],["TARN","依 ICD 章節記錄既往病況"]],
+ note:"C04 單欄簡化版無法計算 CCI（Charlson 共病指數）——若要對接 VSTR 需結構化收集。"},
+{id:"2-6",ch:2,name:"社經與保險身分分析",viz:{t:"hbar",d:[["第1類",38],["第2類",21],["第3類",16],["第6類",14],["其他",11]]},
+ f:["C03","G01"],
+ calc:"健保投保類別（G01）作為社經地位代理指標，分析不同社經層之創傷發生與結果差異；保險狀態（C03）呈現就醫身分。",
+ stat:"n（%）；可與機轉、結果交叉。",
+ intl:[["NTDS","Primary Method of Payment：調查照護差異與可近性"],["VSTR","以 ARIA/IRSAD 地理社經指數呈現"]],tw:true},
+
+/* ── 第 3 章 受傷機轉與傷因 ── */
+{id:"3-1",ch:3,name:"受傷機轉分布",viz:{t:"hbar",d:[["車禍",59.7],["跌倒",32.9],["其他",7.4]]},
+ f:["A07"],
+ calc:"ICD-10 外因碼（A07）依大類歸群（V 碼交通、W00–W19 跌倒墜落、燒燙傷、穿刺切割⋯）。",
+ stat:"n（%）水平長條；五年趨勢分組呈現。",
+ intl:[["VSTR","Fig 4：13 類×5 年（低處跌倒 39%、交通 34%）"],["JTDB","Table 4：11 類（跌倒墜落 58.1%、汽車 27.2%）"],["KH","車禍 59.7%、跌倒 32.9% — 機車社會的台灣特徵"]]},
+{id:"3-2",ch:3,name:"機轉 × 年齡交叉表",viz:{t:"matrix",d:0},
+ f:["A07","C01"],
+ calc:"機轉大類 × 年齡組交叉計數，呈現「誰因什麼受傷」：年輕人車禍、老人跌倒的雙峰結構。",
+ stat:"交叉計數表（n）＋熱度底色。",
+ intl:[["JTDB","Table 5：機轉×21 個年齡級距"],["VSTR","機車 15–24 歲高峰、行人高齡為多"]]},
+{id:"3-3",ch:3,name:"傷害意圖分布",viz:{t:"hbar",d:[["非蓄意",96.3],["他傷",1.7],["自傷",1.6],["未明",0.4]]},
+ f:["A10","F01"],
+ calc:"傷害意圖（A10）分布；自傷／他傷個案另與死亡交叉。",
+ stat:"n（%）；意圖別致死率。",
+ intl:[["JTDB","Table 20–22：意圖×存亡×LOS（自傷 LOS 中位 11 天但死亡集中早期）"],["VSTR","攻擊 5.7%、蓄意自傷 3.8%"],["KH","非蓄意 96.3%"]]},
+{id:"3-4",ch:3,name:"交通事故傷患身份別",viz:{t:"hbar",d:[["機車",64],["汽車",14],["行人",12],["自行車",10]]},
+ f:["A08","C01","F01"],
+ calc:"交通事故者依身份（A08：機車騎士/乘客、汽車駕駛/乘客、行人、自行車）分組，與年齡、死亡交叉。",
+ stat:"n（%）；身份×年齡交叉表。",
+ intl:[["JTDB","Table 19：車種×年齡（機車 15–24 峰、行人高齡）"],["VSTR","汽車駕駛/乘客、機車、自行車（含電動）、行人、電動滑板車分列"]],
+ note:"台灣機車佔比遠高於四國——此表將是台灣年報最具本土意義的圖之一。"},
+{id:"3-5",ch:3,name:"安全防護設備使用率",viz:{t:"stack",d:[["有使用",72],["未使用",19],["不明",9]]},
+ f:["A09","A08","D01","F01"],
+ calc:"依身份別（A08）計算防護設備使用率（A09：機車→安全帽、汽車→安全帶/氣囊、兒童→安全座椅），並與頭部外傷嚴重度（D01）、死亡交叉——「戴不戴安全帽差多少」。",
+ stat:"使用率 %（分層）；使用 vs 未使用者之頭部 AIS≥3 比例與死亡率比較。",
+ intl:[["NTDS","Protective Devices ＋ Child Specific Restraint ＋ Airbag Deployment 三欄"]],
+ note:"直接支撐交通安全政策（安全帽稽查、兒童座椅宣導）之證據。"},
+{id:"3-6",ch:3,name:"職業傷害分析",viz:{t:"gauge",d:8.5},
+ f:["A11","A06","A07"],
+ calc:"職業傷害（A11）比例；與場所（A06 工廠/工地/農田）及機轉交叉，供勞安部門參考。",
+ stat:"n（%）；場所別職傷分布。",
+ intl:[["NTDS","Work-Related ＋ 職業/產業別兩欄"]],tw:true},
+{id:"3-7",ch:3,name:"傷害類型（鈍/穿透/燒傷）",viz:{t:"pie",d:[["鈍傷",94.1],["穿透",3.4],["燒傷",1.3],["其他",1.2]]},
+ f:["D05"],
+ calc:"傷害類型（D05）單欄分布——也是 TRISS 模型分流（鈍傷/穿透傷不同係數）之依據。",
+ stat:"n（%）。",
+ intl:[["VSTR","鈍 94.1%／穿透 3.4%／燒傷 1.3%"],["KH","穿刺切割 2.1%、燒燙傷 1.3%"]]},
+{id:"3-8",ch:3,name:"燒傷病患專節",viz:{t:"hist",d:[62,22,9,5,2]},
+ f:["D12","D05","E03","F01"],
+ calc:"燒傷個案之 %TBSA（D12）分布；TBSA≥20% 為 VSTR 重大創傷定義之一，與 ICU、死亡交叉。",
+ stat:"TBSA 分組 n（%）；重度燒傷（≥20%）死亡率。",
+ intl:[["VSTR","燒傷 ≥20% TBSA 列重大創傷（Box 3）"],["TARN","全層燒傷全收、部分層 ≥10% 收案"]]},
+
+/* ── 第 4 章 事故地點與時間 ── */
+{id:"4-1",ch:4,name:"事故場所類型分布",viz:{t:"hbar",d:[["道路",64.9],["住家",21],["工作場所",6],["其他",8.1]]},
+ f:["A06"],
+ calc:"場所類型（A06，ICD 場所分類）分布；可分兒科子群呈現。",
+ stat:"n（%）；五年趨勢。",
+ intl:[["VSTR","Fig 5a/5b：居家 37% 為最大宗（含居家跌倒細分：梯子 119、屋頂 65）"],["KH","道路 64.9%（車禍社會）"]]},
+{id:"4-2",ch:4,name:"行政區分布與區域發生率",viz:{t:"hbar",d:[["三民區",59.7],["苓雅區",9],["前鎮區",7],["其他",24.3]]},
+ f:["A05"],
+ calc:"行政區（A05）病例數；除以各區人口得每十萬人口率，呈現城鄉差距。",
+ stat:"n（%）＋區域別發生率；地圖著色。",
+ intl:[["VSTR","Table 1a/1b：鄉村發生率 77.0 恆高於都會 50.3；Fig 7 各區機轉構成地圖"],["KH","表 2＋圖 7"]]},
+{id:"4-3",ch:4,name:"時間分布（月／星期／時段）",viz:{t:"bar",d:[8,6,9,8,9,8,9,9,8,9,11,8]},
+ f:["A02"],
+ calc:"由事故日期時間（A02）衍生：月份、星期（假日 vs 工作日）、24 小時時段分布。",
+ stat:"n（%）長條；假日比例。",
+ intl:[["VSTR","Fig 6：週末 33.6%、週六最高 16.9%；51% 發生於 8am–4pm"],["KH","假日 31.6%、上午 06–11 時尖峰"]]},
+{id:"4-4",ch:4,name:"離島創傷與跨海後送",viz:{t:"num",d:"n (%)"},
+ f:["G06","E08","B17","F01"],
+ calc:"離島（G06）個案數、跨海後送（E08＋B17 空中後送）比例、後送時效與結果。",
+ stat:"n（%）；後送時間中位數。",
+ intl:[],tw:true,
+ note:"四國年報皆無此議題——台灣離島醫療平權的獨有指標。"},
+
+/* ── 第 5 章 受傷部位與嚴重度 ── */
+{id:"5-1",ch:5,name:"AIS 部位分布",viz:{t:"hbar",d:[["下肢",29],["頭部",21],["胸部",17],["脊椎",14],["上肢",13],["腹部",6]]},
+ f:["D01","D04"],
+ calc:"各 AIS 部位（D01，健保 6 部位版）受傷例數（一人可計入多部位）；ICD-10 診斷碼（D04）輔助描述具體傷勢。",
+ stat:"部位別計數；受傷部位數分布（單一/多部位）。",
+ intl:[["JTDB","Table 23：9 部位計數（下肢 78,318 最多）＋ Table 25 部位數分布"],["KH","圖 8 受傷部位比例"]]},
+{id:"5-2",ch:5,name:"部位別最大 AIS 嚴重度",viz:{t:"stack",d:[["AIS1-2",45],["AIS3",35],["AIS4-5",20]]},
+ f:["D01"],
+ calc:"各部位取該病人於該部位之最高 AIS 分數（max AIS），呈現嚴重度組成。",
+ stat:"部位 × max AIS（1–6）交叉 n（%）。",
+ intl:[["JTDB","Table 24：頭部 AIS5 佔 16.1%、胸部 AIS3 佔 59.5%"]]},
+{id:"5-3",ch:5,name:"受傷部位組合分類",viz:{t:"hbar",d:[["多發傷",41],["頭+其他",21.1],["單純頭部",15.7],["四肢/脊椎",11.8],["胸腹",8.3],["脊髓",2]]},
+ f:["D01","D04"],
+ calc:"依 AIS 操作型定義將病人歸入互斥六群組（如：單純頭部＝頭 AIS>2 且其他部位 AIS≤1；嚴重脊髓＝脊髓 AIS>3）。",
+ stat:"六群組 n（%）；五年趨勢。",
+ intl:[["VSTR","Table 2a/2b（成人＋兒科版）"],["KH","表 3：多發傷 41.0% ≈ VSTR 40.6%——已驗證可比性"]]},
+{id:"5-4",ch:5,name:"ISS 分布",viz:{t:"hist",d:[17,48,17,12,3]},
+ f:["D01","D02"],
+ calc:"ISS（D02）＝最嚴重三部位最高 AIS 平方和（1–75）；分組 1–8／9–15／16–24／25–40／41–75。",
+ stat:"直方圖＋中位數［IQR］；依醫院層級分層。",
+ intl:[["JTDB","Table 11：9–15 佔 47.7%"],["VSTR","MTS 中位 17 vs 其他機構 14"],["KH","中位數 9、圖 9"]]},
+{id:"5-5",ch:5,name:"NISS 與 ISS 比較",viz:{t:"scatter",d:0},
+ f:["D02","D03"],
+ calc:"NISS（D03）＝不分部位前三高 AIS 平方和；與 ISS 差值大者代表單一部位多重傷（穿透傷常見），NISS 對死亡預測較佳。",
+ stat:"NISS vs ISS 散佈／重分類比例；兩者分別計算之重大創傷率。",
+ intl:[["VSTR","NISS 存於 Outcome 快照表"],["NTDS","以逐傷 AIS 碼支援兩者計算"]]},
+{id:"5-6",ch:5,name:"ISS 分組致死率",viz:{t:"bar",d:[1.2,2.9,8,33.7,61.9]},
+ f:["D02","F01"],
+ calc:"各 ISS 分組之院內死亡數 ÷ 該組病例數。劑量反應關係是資料品質的最好驗證。",
+ stat:"致死率 %（case fatality rate）；可加年齡分層。",
+ intl:[["JTDB","Table 13：1–8→1.2%、16–24→8.0%、41–75→61.9%、全體 9.2%"],["VSTR","ISS>12 者院內死亡率 9.4%"]]},
+{id:"5-7",ch:5,name:"嚴重頭部外傷趨勢",viz:{t:"line",d:[6.9,6.4,6.1,5.8,5.5]},
+ f:["D01","D06"],
+ calc:"嚴重頭部外傷＝頭部 AIS>2（D01）且到院 GCS 3–8（D06），佔全部病例比例，依機轉分層。",
+ stat:"n（%）堆疊趨勢圖。",
+ intl:[["VSTR","Fig 8：6.9%→5.5%（汽車相關 66→38 例，安全政策成效證據）"]]},
+{id:"5-8",ch:5,name:"到院生理狀態（生命徵象分布）",viz:{t:"box",d:[118,90,60]},
+ f:["D06","D07","D08","D09","D10"],
+ calc:"到院首次 GCS、SBP、RR、HR、體溫（D06–D10）之分布；低血壓（SBP<90）、低體溫（<36°C）比例——創傷死亡三角監測。",
+ stat:"中位數［IQR］；異常值比例 n（%）。",
+ intl:[["NTDS","Initial ED/Hospital 生命徵象 7 欄（到院 30 分鐘內首次紀錄）"],["VSTR","Hospital First Recorded 系列欄位"]]},
+
+/* ── 第 6 章 院前救護指標 ── */
+{id:"6-1",ch:6,name:"到院方式分布",viz:{t:"pie",d:[["119救護車",67],["自行前來",29],["他院轉入",4]]},
+ f:["A01"],
+ calc:"到院方式（A01）分流統計——也是解釋後續 119 欄位空白率的前置欄位。",
+ stat:"n（%）。",
+ intl:[["NTDS","Transport Mode"],["KH","救護車 ~67%／自行 ~33%"]]},
+{id:"6-2",ch:6,name:"院前資料串接完整率",viz:{t:"gauge",d:74},
+ f:["B01","A01"],
+ calc:"119 送達者中，成功以救護案號（B01）串接消防電子紀錄之比例——B 類全部欄位的自動化程度取決於此鑰匙。",
+ stat:"串接成功率 %（資料品質指標）。",
+ intl:[["NTDS","EMS PCR UUID 為對應欄位；附 EMS 資料傳輸技術附錄"],["VSTR","與 Ambulance Victoria 以機率式連結補全院前資料"]],tw:true,
+ note:"B01 是全問卷「槓桿最大」的單一欄位：它不直接出現在任何圖表上，但決定 B02–B20 是自動拋轉還是人工登打。"},
+{id:"6-3",ch:6,name:"EMS 反應時間（報案→到場）",viz:{t:"box",d:[6.5,11,15]},
+ f:["B02","B03","B04"],
+ calc:"反應時間＝到達現場（B04）− 報案（B02）；另可拆出派遣延遲（B03−B02）。",
+ stat:"中位數＋第 90 百分位（分鐘）；五年趨勢。",
+ intl:[["VSTR","Table 5a：中位 17 分、P90 60 分"]]},
+{id:"6-4",ch:6,name:"現場停留時間（Scene Time）",viz:{t:"box",d:[8,13,18]},
+ f:["B04","B05"],
+ calc:"現場時間＝離開現場（B05）− 到達現場（B04）；依嚴重度分層檢視「load and go」原則落實度。",
+ stat:"中位數＋P90（分鐘）；區間分布 n（%）。",
+ intl:[["VSTR","Table 5b：中位 32 分、P90 82 分"],["KH","6–10 分鐘佔 54.3%（圖 11/表 5a）"]]},
+{id:"6-5",ch:6,name:"送醫時間與院前總時間",viz:{t:"box",d:[7.4,15,25]},
+ f:["B02","B05","B06"],
+ calc:"送醫時間＝到院（B06）− 離開現場（B05）；院前總時間＝到院（B06）− 報案（B02）。",
+ stat:"中位數＋P90；受傷至抵達適當醫院總時間（小時）。",
+ intl:[["VSTR","Table 5c/5d：院前總時間中位 61 分；受傷至抵 MTS 中位 2.5 小時"],["KH","T2→T3 平均 7.4 分（表 5b）"]]},
+{id:"6-6",ch:6,name:"院前生命徵象與到院變化",viz:{t:"line",d:[13,12,11,13,14]},
+ f:["B07","B08","B09","B10","B11","D06","D07"],
+ calc:"院前首次 GCS/SBP/RR/HR/SpO₂（B07–B11）分布；與到院值（D06、D07）比較，偵測途中惡化個案。",
+ stat:"中位數［IQR］；惡化（GCS 下降≥2 或 SBP 掉入休克）比例。",
+ intl:[["VSTR","Ambulance First Recorded 系列＋品質旗標"],["NTDS","院前欄位精簡，生理值以到院首次為主"]]},
+{id:"6-7",ch:6,name:"院前處置率（呼吸道/輸液/止血帶）",viz:{t:"hbar",d:[["IV輸液",34],["進階呼吸道",6],["止血帶",2]]},
+ f:["B12","B13","B14","G03","D02"],
+ calc:"各項院前處置（B12–B14）實施率，依檢傷級數（G03）與最終 ISS（D02）分層——「該做的有沒有做」。",
+ stat:"處置率 %（分層）；五年趨勢。",
+ intl:[["VSTR","救護處置欄位：ETT、SGA、IV Fluids、CPR 等逐項收集"]]},
+{id:"6-8",ch:6,name:"止血帶時效分析",viz:{t:"box",d:[35,60,90]},
+ f:["B14","B15","B16"],
+ calc:"止血帶總留置時間＝卸除（B16）− 綁上（B15）；監測 >2 小時之肢體風險個案。",
+ stat:"留置時間中位數［IQR］；>120 分鐘比例。",
+ intl:[],tw:true,
+ note:"四國年報皆未呈現止血帶時效——若可行，台灣可發表國際領先的院前止血品質數據。"},
+{id:"6-9",ch:6,name:"空中救護（HEMS）利用",viz:{t:"num",d:"n (%)"},
+ f:["B17","G06","D02"],
+ calc:"直升機後送（B17）個案數與比例；與離島（G06）、嚴重度交叉。",
+ stat:"n（%）；後送個案 ISS 分布。",
+ intl:[["VSTR","Table 3：現場直升機直送 MTS 413 次（20.3%）"]]},
+{id:"6-10",ch:6,name:"院前 OHCA 與存活鏈",viz:{t:"funnel",d:[[ "OHCA",1.4],["目擊CPR",60],["ROSC",30],["存活出院",8]]},
+ f:["B18","G05","F01","F03"],
+ calc:"院前心跳停止（B18）發生率；目擊者 CPR（G05，Utstein 標準）比例；存活率漏斗。",
+ stat:"n（%）漏斗圖；Utstein 樣板呈現。",
+ intl:[["VSTR","另設救護心跳停止登錄（VACAR）串接"],["KH","OHCA 1.4%（15 例）"]]},
+{id:"6-11",ch:6,name:"救護員層級與處置能力",viz:{t:"hbar",d:[["EMT-2",68],["EMTP",22],["EMT-1",10]]},
+ f:["B19","G02","B12","B13"],
+ calc:"第一線最高救護員層級（B19/G02，台灣三級制）分布；EMTP 到場率與進階處置實施率之關聯。",
+ stat:"n（%）；層級別處置率比較。",
+ intl:[["VSTR","MICA Paramedic（重症救護員）欄位為對應概念"]],tw:true},
+{id:"6-12",ch:6,name:"到院前檢傷級數分布",viz:{t:"bar",d:[7.7,26.8,52,13.5]},
+ f:["G03","D02"],
+ calc:"119 現場檢傷級數（G03）分布；與最終 ISS 交叉檢視院前檢傷準確度。",
+ stat:"n（%）；檢傷級數×ISS 一致性。",
+ intl:[["KH","第一級 7.7%、第二級 26.8%（圖 10）"]],tw:true},
+{id:"6-13",ch:6,name:"就近適當派遣率",viz:{t:"gauge",d:80.7},
+ f:["B20","G03"],
+ calc:"後送目的地符合衛生局創傷分流指引（B20）之比例——院前分流品質的總結指標。",
+ stat:"符合率 %；五年趨勢；不符合原因分類。",
+ intl:[["VSTR","AV 目的地符合率 94.7%（Table 5e）；74.7% 於適當創傷機構最終照護"],["KH","80.7%（846/1047，表 8）"]]},
+
+/* ── 第 7 章 院內照護與處置 ── */
+{id:"7-1",ch:7,name:"外傷小組啟動率",viz:{t:"gauge",d:8.9},
+ f:["D11","G03","D02"],
+ calc:"外傷小組啟動（D11）比例；依檢傷級數與 ISS 分層檢視啟動適當性。",
+ stat:"啟動率 %；時效危急個案啟動率。",
+ intl:[["VSTR","Table 7a：signal one 個案 MTS 啟動率 88.4%"],["NTDS","Highest Activation 欄位"],["KH","8.9%（93 例，表 7）"]]},
+{id:"7-2",ch:7,name:"檢傷不足/過度矩陣（Cribari）",viz:{t:"matrix",d:0},
+ f:["D11","D02"],
+ calc:"Undertriage＝ISS>15 但未啟動小組；Overtriage＝ISS<9 卻啟動。ACS 建議 undertriage <5%、overtriage 25–35%。",
+ stat:"2×2 矩陣＋Cribari 法計算兩率。",
+ intl:[["NTDS","TQIP 以 Highest Activation × ISS 監測此指標"]],
+ note:"只需 D11＋D02 兩欄就能做出的高價值品質指標。"},
+{id:"7-3",ch:7,name:"外傷小組反應時效",viz:{t:"box",d:[8,15,25]},
+ f:["E02","B06","D11"],
+ calc:"專責醫師到達（E02）− 病患到院（B06），限啟動個案。",
+ stat:"中位數＋P90（分鐘）。",
+ intl:[["NTDS","Trauma Surgeon Arrival Date/Time（TQIP 過程指標）"]]},
+{id:"7-4",ch:7,name:"緊急手術率與手術時效",viz:{t:"gauge",d:66.7},
+ f:["E01","B06","D05"],
+ calc:"急診首次外傷手術（E01）實施率與術式分類；受傷/到院至手術時間。",
+ stat:"手術率 %；到院至手術時間中位數。",
+ intl:[["VSTR","緊急手術（開顱/開胸/開腹/骨盆固定）為重大創傷定義之一"],["NTDS","Surgery for Hemorrhage Control ＋ 時間戳（TQIP）"],["KH","手術率 66.7%"]]},
+{id:"7-5",ch:7,name:"血管攝影栓塞治療",viz:{t:"num",d:"n (%)"},
+ f:["E06","B06"],
+ calc:"血管攝影/栓塞（E06）實施率；到院至栓塞時間（骨盆骨折出血控制時效）。",
+ stat:"n（%）；時效中位數。",
+ intl:[["NTDS","Angiography ＋ Embolization Site ＋ 時間戳（TQIP 過程指標）"]]},
+{id:"7-6",ch:7,name:"輸血與大量輸血分析",viz:{t:"hist",d:[70,15,8,5,2]},
+ f:["E05","D07","F01"],
+ calc:"輸血（E05）率與輸注量分布；大量輸血（24hr ≥10U 或 4hr ≥5U）個案之存活分析。",
+ stat:"輸血率 %；輸注量中位數；MT 個案死亡率。",
+ intl:[["NTDS","PRBC/全血/血漿/血小板/冷凍沉澱 5 品項＋4 小時內量（TQIP）"]]},
+{id:"7-7",ch:7,name:"ICU 利用率與天數",viz:{t:"box",d:[2,4,9]},
+ f:["E03","F02"],
+ calc:"ICU 入住（E03）率、ICU 天數分布；ICU>24 小時＋機械通氣為國際重大創傷定義之一。",
+ stat:"入住率 %；天數中位數＋P90。",
+ intl:[["VSTR","Table 7c：入住率 30.1%、中位 4 天"],["KH","ICU 中位 0 天（表 6b）"]]},
+{id:"7-8",ch:7,name:"呼吸器使用",viz:{t:"box",d:[1,3,8]},
+ f:["E04","E03"],
+ calc:"呼吸器使用天數（E04）分布，限插管個案。",
+ stat:"天數中位數＋P90。",
+ intl:[["VSTR","Table 7d：ICU 通氣時數中位 22–30 小時"],["NTDS","Total Ventilator Days"]]},
+{id:"7-9",ch:7,name:"轉院分析（轉入/轉出與時效）",viz:{t:"funnel",d:[["全部",100],["轉院",12.4],["≤6hr",8],[">6hr",4.4]]},
+ f:["E08","G04","A01","B06"],
+ calc:"轉出率（E08）；轉入來源醫院層級（G04 自動轉譯）；院際轉送時間＝離院（E08 時間）− 首院到達。",
+ stat:"轉院率 %；轉送時間中位數＋P90；>6 小時個案數（品質警訊）。",
+ intl:[["VSTR","院際轉送中位 10.0 小時；時效危急轉院 >6 小時列 CRG 個案審查"],["TARN","轉院個案兩院提交配對合併"],["KH","轉院率 12.4%"]]},
+{id:"7-10",ch:7,name:"壓瘡發生率",viz:{t:"gauge",d:1.8},
+ f:["E07","F02"],
+ calc:"住院期間新發生壓瘡（E07）比例——護理照護品質指標。",
+ stat:"發生率 %（可依 LOS 分層）。",
+ intl:[["NTDS","Pressure Ulcer 為 21 項住院事件之一"]]},
+{id:"7-11",ch:7,name:"DNR 與撤除維生治療",viz:{t:"hbar",d:[["無DNR",88],["DNR",12]]},
+ f:["E09","E10","F01"],
+ calc:"DNR（E10）與撤除維生（E09）比例；死亡個案中 DNR/撤除者佔比——死亡率校正與品質判讀必備。",
+ stat:"n（%）；死亡個案分解（積極救治後死亡 vs 安寧取向）。",
+ intl:[["NTDS","Advance Directive＋Withdrawal of Life Supporting Treatment（含時間戳，TQIP）"]]},
+
+/* ── 第 8 章 住院結果 ── */
+{id:"8-1",ch:8,name:"院內死亡率",viz:{t:"gauge",d:4.9},
+ f:["F01","D02"],
+ calc:"院內死亡（F01）÷ 全部病例；另呈現重大創傷（ISS>12）死亡率以利國際比較——收案範圍不同，粗死亡率不可直接互比。",
+ stat:"粗死亡率 %；ISS>12 死亡率；五年趨勢。",
+ intl:[["VSTR","12.1%（重大創傷收案）；ISS>12 者 9.4%"],["JTDB","全體 9.2%"],["KH","4.9%（51 例，全創傷收案）"]]},
+{id:"8-2",ch:8,name:"出院去向分布",viz:{t:"hbar",d:[["返家",80.3],["轉院",12.4],["死亡",4.9],["機構",2.4]]},
+ f:["F03"],
+ calc:"出院去向（F03）分布；轉復健比例是長期照護資源的代理指標。",
+ stat:"n（%）；五年趨勢。",
+ intl:[["VSTR","Table 8：復健 23.0%、返家 61.3%（排除院內死亡）"],["KH","返家 80.3%（圖 12/表 4）"]]},
+{id:"8-3",ch:8,name:"住院天數（LOS）",viz:{t:"box",d:[5,8.7,21]},
+ f:["F02"],
+ calc:"總住院天數與 ICU 天數（F02）分布。",
+ stat:"中位數［IQR 或 P90］＋平均值；五年趨勢。",
+ intl:[["VSTR","中位 6.8 天、P90 22.5"],["JTDB","機轉別 LOS 中位（IQR）：跌倒 17（8–29）"],["KH","中位 5 天、平均 8.7 天"]]},
+{id:"8-4",ch:8,name:"機轉 × 嚴重度 × 結果交叉總表",viz:{t:"matrix",d:0},
+ f:["A07","D02","F01","F02","C01"],
+ calc:"JTDB 式多維交叉：機轉別死亡與 LOS、ISS 別致死率、年齡×性別死亡數等系列表。",
+ stat:"交叉計數＋致死率＋LOS 中位（IQR）。",
+ intl:[["JTDB","Table 6–16 即此系列（年報主體）"]]},
+
+/* ── 第 9 章 風險校正與品質指標 ── */
+{id:"9-1",ch:9,name:"TRISS 存活機率（Ps）分析",viz:{t:"hist",d:[4.4,2.2,3.2,90.3]},
+ f:["C01","D02","D05","D06","D07","D08","F01"],
+ calc:"RTS＝0.9368·GCS＋0.7326·SBP＋0.2908·RR（編碼值）；Ps＝1/(1+e⁻ᵇ)，b＝b₀＋b₁·RTS＋b₂·ISS＋b₃·Age(≥55)，鈍傷/穿透傷（D05）各用一套係數。",
+ stat:"Ps 分組分布 n（%）；Ps 分組 × 實際存亡對照表（預測 vs 觀察）。",
+ intl:[["JTDB","Table 17/18：Ps≥0.75 佔 90.3%；Ps 0–0.1 組仍有 410 人存活（unexpected survivors）"],["TARN","Ps04 改用年齡+性別+GCS+ISS 四共變數、30 天結局"]],
+ note:"預期死亡卻存活（unexpected survivor）與預期存活卻死亡個案，是院內死亡檢討會（M&M）最佳選案來源。"},
+{id:"9-2",ch:9,name:"W 統計量（超額存活數）",viz:{t:"num",d:"Ws ±CI"},
+ f:["C01","C02","D02","D05","D06","D07","D08","F01"],
+ calc:"Ws＝（實際存活數 − ΣPs 預期存活數）÷ 收治人數 × 100，即每 100 名病人多救活（或少救活）幾人；Zs 檢定顯著性（>1.96 顯著優於全國平均）。",
+ stat:"Ws（95% CI）圖；全國各院排行榜（case-mix 已校正）。",
+ intl:[["TARN","Ws/Zs 為其院際比較核心方法，附全國基準圖"]],
+ note:"這是未來「全國創傷登錄」院際比較的終極型態——需各院資料集中後才能實現。"},
+{id:"9-3",ch:9,name:"風險校正死亡趨勢（aRR）",viz:{t:"line",d:[1.0,0.97,1.02,0.95,0.93]},
+ f:["C01","D01","D02","A07","F01"],
+ calc:"以基準年為對照，逐年計算校正相對風險 aRR——校正年齡、ISS、頭部外傷嚴重度（頭 AIS>2）、受傷機轉後，回答「照護品質真的有進步嗎」。",
+ stat:"adjusted RR（95% CI）逐年呈現，多變項迴歸。",
+ intl:[["VSTR","Table 11：2022–23 全體 aRR 0.93（0.82–1.04），與基準年無差異"]]},
+{id:"9-4",ch:9,name:"系統品質指標總表（KPI Dashboard）",viz:{t:"matrix",d:0},
+ f:["B20","D11","E02","F01","F02","B04","B05","G03"],
+ calc:"彙整院前（適當派遣率、現場時間）與院內（小組啟動率、死亡率、手術率、LOS）指標為一張 KPI 表，附國際對照欄。",
+ stat:"指標值＋分類＋對照值＋說明之總表。",
+ intl:[["VSTR","Trauma system indicators 章（指標句＋表格）"],["KH","表 11 系統指標摘要（已含 VSTR 對照欄）"]]},
+
+/* ── 第 10 章 長期預後追蹤 ── */
+{id:"10-1",ch:10,name:"出院功能狀態（GOS-E）",viz:{t:"stack",d:[["良好",40],["中度障礙",35],["重度障礙",20],["植物/死亡",5]]},
+ f:["F04"],
+ calc:"GOS-E（F04）8 級評分於出院時施測；VSTR 限頭部 AIS≥3 者追蹤施測。",
+ stat:"各級 n（%）堆疊；良好復原比例。",
+ intl:[["VSTR","成人良好復原校正後預測機率約 35–39%（Fig 13）"],["TARN","Glasgow Outcome Scale 為結局欄位"]]},
+{id:"10-2",ch:10,name:"兒科功能預後（KOSCHI）",viz:{t:"stack",d:[["良好",62],["中度",28],["重度",10]]},
+ f:["F05","C01"],
+ calc:"兒科（<16 歲）以 KOSCHI（F05）評估功能預後。",
+ stat:"各級 n（%）；良好功能預測機率。",
+ intl:[["VSTR","兒科良好功能校正後約 59–63%（Fig 14）"]]},
+{id:"10-3",ch:10,name:"6/12/24 個月生活品質（EQ-5D-5L）",viz:{t:"line",d:[0.62,0.66,0.69]},
+ f:["F06"],
+ calc:"傷後 6/12/24 個月電話（或線上）追蹤 EQ-5D-5L（F06）；效用值經校正社經、人口學與傷害因素後呈現。",
+ stat:"校正後預測平均值（95% CI）折線；五個維度分布。",
+ intl:[["VSTR","成人 EQ-5D 摘要分數約 0.66–0.69、穩定（Fig 15）；12 月平均約 0.70"]],
+ note:"高雄年報已明列此為「與 VSTR 最主要的差距」——F06 若納入，將是台灣年報最大升級。"},
+{id:"10-4",ch:10,name:"追蹤完成率",viz:{t:"gauge",d:82},
+ f:["F06"],
+ calc:"應追蹤個案中成功完成訪談之比例——長期預後數據可信度的前提。",
+ stat:"6/12/24 月各期完成率 %。",
+ intl:[["VSTR","成人 82%/82%/81%；兒科 86%/89%/91%（最多聯繫 10 次之標準化流程）"]]},
+
+/* ── 第 11 章 空間分析（台灣特色） ── */
+{id:"11-1",ch:11,name:"事故熱點互動地圖",viz:{t:"map",d:0},
+ f:["A03","A04","A05","A07","G03","A02","F03"],
+ calc:"GPS 座標（A03，非 119 者以地址 A04 地理編碼）繪製點位/熱力/群集圖，附機轉、檢傷、月份、時段、ISS、結果之互動篩選。",
+ stat:"互動地圖（Leaflet）；點擊顯示個案摘要。",
+ plain:{q:"事故都發生在哪裡？哪些路口、社區反覆出事？",
+  read:"紅點越密集＝事故越多；虛線圈住的就是熱區。",
+  act:"熱區清單交給交通局（路口改善）與衛生局（社區防跌）。"},
+ intl:[["KH","已實作（1,046 筆含座標個案、7 種篩選器）——四國年報皆無互動地圖"]],tw:true},
+{id:"11-2",ch:11,name:"GWR 地理加權迴歸分析",viz:{t:"map",d:1},
+ f:["A03","B04","B05","B06","D02","F02"],
+ calc:"以 GWR 檢驗送醫時效、ISS、住院天數之空間異質性：局部係數地圖、Local R²、帶寬選擇 CV 曲線。",
+ stat:"GWR 模型摘要（R²、帶寬、樣本數）＋局部係數地理分布圖。",
+ plain:{q:"住在不同地區，送醫時間會不會不一樣？差在哪？",
+  read:"越紅＝該區送醫越被「住的位置」拖累。R²=0.41 表示送醫時效有明顯地區差；ISS 的 R²=0.013 表示傷勢嚴重度沒有——問題在救護系統，不在病人。",
+  act:"紅色地區＝照護不平等的量化證據，支撐加開分隊／調整分流的論述。"},
+ intl:[["KH","三模型已實作：送醫時效 R²=0.41（強空間異質）、ISS R²=0.013（無聚集）、LOS 手術效應 R²=0.26"]],tw:true},
+{id:"11-3",ch:11,name:"行政區別結果指標地圖",viz:{t:"map",d:2},
+ f:["A05","B06","D02","F02"],
+ calc:"各行政區平均送醫時間、ISS、住院天數之面量圖（choropleth），呈現照護平權地圖。",
+ stat:"區域別平均值/中位數著色地圖。",
+ plain:{q:"各行政區的送醫時間、嚴重度、住院天數是多少？哪區最該關注？",
+  read:"一區一個數字，顏色越深＝數值越高；先看最深色的區。",
+  act:"給首長看的「30 秒地圖」，一眼看出哪區要補資源。"},
+ intl:[["KH","圖 17 已實作"],["VSTR","Fig 7 為靜態的區域機轉構成地圖（概念相近）"]],tw:true},
+{id:"11-4",ch:11,name:"救護資源可近性分析",viz:{t:"map",d:3},
+ f:["A03","B03","B04","G06"],
+ calc:"以事故點位與反應時間（B04−B03）建立等時圈（isochrone），辨識救護資源不足區域；離島另列。",
+ stat:"反應時間等時圈地圖；超過標準時間之熱區清單。",
+ plain:{q:"救護車幾分鐘內能涵蓋哪裡？有沒有熱區在圈外？",
+  read:"同心圓＝4／8／12 分鐘反應圈；重點看圈外的紅點。",
+  act:"圈外熱區＝增設分隊或調整駐點的選址依據。"},
+ intl:[],tw:true},
+{id:"11-5",ch:11,name:"時空熱點分析（Emerging Hotspot）",viz:{t:"map",d:4},
+ f:["A03","A02","A07"],
+ calc:"以事故點位（A03）依月份／時段／假日切片，逐格計算 Getis-Ord Gi* 統計量，將熱區分類為持續型、新興型、消退型（時空立方體 emerging hotspot analysis）。",
+ stat:"時空熱點分類地圖；各類熱區清單與時段剖面。",
+ plain:{q:"熱區是固定的，還是會隨時間出現、移動、消失？",
+  read:"紅實線圈＝年年都在的持續型；橘虛線圈＝今年新出現的新興型。",
+  act:"持續型交工程改善；新興型要警覺；時段剖面決定救護車早晚各停哪。"},
+ intl:[],tw:true},
+{id:"11-6",ch:11,name:"機轉別分層地圖（小多圖）",viz:{t:"map",d:5},
+ f:["A07","A08","C01","A03","A06"],
+ calc:"依機轉分層繪製小多圖（small multiples）：高齡跌倒（A07＋C01，社區尺度）、機車事故（A08，路口尺度）、職業傷害（A06 場所）各一張，分開判讀。",
+ stat:"機轉別點位／熱力小多圖並列。",
+ plain:{q:"不同類型的事故，各自集中在哪？",
+  read:"一種機轉一張圖：跌倒聚在社區、機車事故沿幹道與路口。",
+  act:"跌倒圖給衛生局、車禍圖給交通局、職傷圖給勞檢——各自帶得走。"},
+ intl:[],tw:true},
+{id:"11-7",ch:11,name:"轉院流向網絡圖",viz:{t:"map",d:6},
+ f:["G04","E08","A05","G06","B17"],
+ calc:"以轉診來源醫院代碼（G04）與轉出紀錄（E08）建立醫院間 O-D 流向，箭頭粗細＝轉院量；離島（G06）與空中後送（B17）另標。",
+ stat:"O-D 流向地圖＋各院轉出入量表（網絡分析）。",
+ plain:{q:"重傷患者從哪些醫院流向哪些醫院？",
+  read:"箭頭越粗＝轉院越多；某院轉出特別多＝當地重症能量不足。",
+  act:"檢視區域化是否成形，找出依賴長距離轉送的「創傷照護空窗區」。"},
+ intl:[["VSTR","以院際轉送指標（表格）呈現同一議題；流向地圖為台灣獨創呈現"]],tw:true},
+{id:"11-8",ch:11,name:"目擊者 CPR 空間分析",viz:{t:"map",d:7},
+ f:["B18","G05","A03","A05","F01"],
+ calc:"OHCA 個案（B18）中目擊者 CPR（G05，Utstein 定義）之比例，依行政區／社區計算並繪製面量圖，與存活率對照。",
+ stat:"CPR 率面量圖；區域別 Utstein 存活鏈比較。",
+ plain:{q:"哪些社區的旁觀者 CPR 率偏低？",
+  read:"綠色越深＝CPR 率越高；先看最淺的區。",
+  act:"低 CPR 區＝社區 CPR 訓練與 AED 布建的優先名單。"},
+ intl:[],tw:true},
+{id:"11-9",ch:11,name:"防護設備使用空間差異",viz:{t:"map",d:8},
+ f:["A09","A08","A05","D01"],
+ calc:"機車事故傷患之安全帽使用率（A09÷A08）依行政區繪製面量圖；疊加頭部 AIS≥3 比例（D01）呈現「未使用之代價」。",
+ stat:"使用率面量圖；使用 vs 未使用之頭部重傷率對照。",
+ plain:{q:"哪些地區的安全帽使用率偏低？不戴的代價多大？",
+  read:"顏色越淺＝使用率越低；對照該區頭部重傷比例。",
+  act:"低使用率區＝交通稽查與宣導的重點區，數字直接支撐政策。"},
+ intl:[],tw:true},
+{id:"11-10",ch:11,name:"風險校正死亡空間掃描",viz:{t:"map",d:9},
+ f:["F01","D02","C01","A03","A05"],
+ calc:"校正年齡（C01）與 ISS（D02）後，以空間掃描統計（SaTScan 類）或貝氏平滑估計各區標準化死亡比（SMR），檢定顯著聚集區。",
+ stat:"平滑 SMR 面量圖＋顯著聚集區（p 值）標示。",
+ plain:{q:"排除「病人本來就比較重」之後，哪裡的死亡率仍然偏高？",
+  read:"看虛線圈住的顯著聚集區——那是校正後仍異常的地方。",
+  act:"照護平權最尖銳的證據；聚集區進入個案審查與系統檢討。"},
+ intl:[["VSTR","以全州 aRR 呈現校正死亡趨勢（Table 11）；分區空間版為台灣獨創"]],tw:true,
+ note:"小區域案例數少，需貝氏平滑與謹慎解讀；建議累積 2–3 年資料後施行。"},
+{id:"11-11",ch:11,name:"社經剝奪 × 傷害疊圖",viz:{t:"map",d:10},
+ f:["G01","C03","A05","D02","F01"],
+ calc:"以健保投保類別（G01）建構區級社經剝奪指標，與各區傷害發生率、嚴重度（D02）、死亡（F01）做空間相關與疊圖分析。",
+ stat:"剝奪程度面量圖＋重傷點位疊圖；區級相關／迴歸。",
+ plain:{q:"弱勢社區是否承受更多、更重的創傷？",
+  read:"底色越深＝剝奪程度越高；紅點＝重傷個案，看兩者是否重疊。",
+  act:"健康不平等的在地證據，支撐弱勢區預防資源的優先配置。"},
+ intl:[["VSTR","以 IRSAD 社經指數做同款分析——台灣版用健保類別即可對接"]],tw:true},
+{id:"11-12",ch:11,name:"AI 預測性熱區",viz:{t:"map",d:11},
+ f:["A03","A02","A07"],
+ calc:"以多年事故點位（A03）×時段×季節×假日（A02）訓練時空預測模型，輸出未來一週的高風險路段地圖；以留一年資料驗證預測力。",
+ stat:"預測風險地圖（機率面）＋模型驗證指標（AUC／命中率）。",
+ plain:{q:"下個連假，哪裡最可能出事？",
+  read:"紅色越深＝預測風險越高；虛線圈＝本週建議加強部署的路段。",
+  act:"從「回顧統計」升級為「事前部署」——救護車與警力提前到位。"},
+ intl:[],tw:true,
+ note:"計畫書「結合人工智慧技術與空間地理資訊分析」的直接落地項目。"}
+];
+
+/* ══════════════ 國際年報有、目前 69 欄位做不到（或需簡化）的項目 ══════════════ */
+const GAPS = [
+ ["住院併發症清單","NTDS 收 21 項住院事件（VAP、CLABSI、DVT/PE、AKI、敗血症、非計畫再插管/再手術⋯）；目前僅 E07 壓瘡一項。若要做院內併發症監測需擴充。"],
+ ["結構化共病／CCI","VSTR 計算 Charlson 共病指數、NTDS 收 33 項共病細項；C04 為單一欄位，僅能呈現粗分類，無法做精細風險校正。"],
+ ["30 天死亡與出院後死亡","TARN Ps04 以 30 天存亡為結局、VSTR 串接法醫資料庫（NCIS）估計全死亡；F01 限院內死亡，低估真實死亡負擔（現場死亡與出院後早期死亡不可見）。"],
+ ["到院前死亡","VSTR 估計全州創傷死亡 2,190 例中院內僅 513 例——多數死在現場。目前收案為到院個案，年報須明載此限制。"],
+ ["TBI 精細指標","NTDS/TQIP 收瞳孔反應、中線偏移、腦壓監測、最高 GCS 等；D06 到院 GCS 可支撐基本分析，但 TBI 專章需另收。"],
+ ["TQIP 式時效過程指標","VTE 預防時效、開放性骨折抗生素時效等需藥囑時間戳，現行欄位未含。"],
+ ["復健與居家復健","VSTR 亦自承不收居家復健；F03 出院去向僅能看到「轉復健機構」的表層。"],
+ ["機構層級檔案","NTDS 以 QPort Site Profile 收醫院特性供院際校正；未來多院比較（Ws 排行）時需另建機構問卷。"]
+];
+
+/* ══════════════ 示意小圖產生器（假資料） ══════════════ */
+const C1="#2f5a99",C2="#b8402f",C3="#c98a00",C4="#2e7d52",C5="#7a4fb3",GRID="#e6e4da",TXT="#6B726B";
+const PAL=[C1,C2,C3,C4,C5];
+function svgo(w,h,inner){return '<svg viewBox="0 0 '+w+' '+h+'" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-hidden="true">'+inner+'</svg>';}
+function mkBar(d){const w=96,h=54,n=d.length,bw=Math.min(10,(w-8)/n-3),max=Math.max(...d);let s='<line x1="4" y1="48" x2="92" y2="48" stroke="'+GRID+'" stroke-width="1"/>';
+ d.forEach((v,i)=>{const bh=Math.max(2,v/max*38),x=6+i*((w-10)/n);s+='<rect x="'+x+'" y="'+(48-bh)+'" width="'+bw+'" height="'+bh+'" rx="1.5" fill="'+C1+'"/>';});return svgo(w,h,s);}
+function mkHBar(d){const w=96,h=54,n=d.length,max=Math.max(...d.map(x=>x[1]));let s='';
+ d.slice(0,4).forEach((p,i)=>{const y=6+i*12,bw=Math.max(3,p[1]/max*62);
+  s+='<rect x="28" y="'+y+'" width="'+bw+'" height="8" rx="1.5" fill="'+(i===0?C1:'#8fa8c8')+'"/>';
+  s+='<text x="26" y="'+(y+7)+'" font-size="6.5" text-anchor="end" fill="'+TXT+'">'+String(p[0]).slice(0,4)+'</text>';});
+ return svgo(w,h,s);}
+function mkLine(d){const w=96,h=54,max=Math.max(...d),min=Math.min(...d);
+ const pts=d.map((v,i)=>[(8+i*(80/(d.length-1))).toFixed(1),(44-((v-min)/(max-min||1))*30).toFixed(1)]);
+ let s='<line x1="6" y1="46" x2="90" y2="46" stroke="'+GRID+'"/>';
+ s+='<polyline fill="none" stroke="'+C1+'" stroke-width="2" stroke-linejoin="round" points="'+pts.map(p=>p.join(',')).join(' ')+'"/>';
+ const lp=pts[pts.length-1];s+='<circle cx="'+lp[0]+'" cy="'+lp[1]+'" r="2.6" fill="'+C1+'"/>';return svgo(w,h,s);}
+function mkPie(d){const w=96,h=54,cx=48,cy=27,r=20;let a0=-Math.PI/2,tot=d.reduce((s,x)=>s+x[1],0),s='';
+ d.forEach((p,i)=>{const a1=a0+p[1]/tot*2*Math.PI;
+  const x0=cx+r*Math.cos(a0),y0=cy+r*Math.sin(a0),x1=cx+r*Math.cos(a1),y1=cy+r*Math.sin(a1),big=(a1-a0)>Math.PI?1:0;
+  s+='<path d="M'+cx+' '+cy+' L'+x0.toFixed(1)+' '+y0.toFixed(1)+' A'+r+' '+r+' 0 '+big+' 1 '+x1.toFixed(1)+' '+y1.toFixed(1)+' Z" fill="'+PAL[i%5]+'" stroke="#fff" stroke-width="1.5"/>';a0=a1;});
+ return svgo(w,h,s);}
+function mkHist(d){const w=96,h=54,max=Math.max(...d);let s='<line x1="4" y1="48" x2="92" y2="48" stroke="'+GRID+'"/>';
+ d.forEach((v,i)=>{const bw=(84/d.length),bh=Math.max(2,v/max*38);
+  s+='<rect x="'+(6+i*bw)+'" y="'+(48-bh)+'" width="'+(bw-2)+'" height="'+bh+'" rx="1.5" fill="'+C1+'"/>';});return svgo(w,h,s);}
+function mkStack(d){const w=96,h=54,tot=d.reduce((s,x)=>s+x[1],0);let x=8,s='';
+ d.forEach((p,i)=>{const bw=p[1]/tot*80;s+='<rect x="'+x+'" y="20" width="'+Math.max(1,bw-2)+'" height="14" rx="2" fill="'+PAL[i%5]+'"/>';x+=bw;});
+ return svgo(w,h,s);}
+function mkBox(d){const w=96,h=54;/* d=[median-ish trio] abstract time strip */
+ let s='<line x1="10" y1="27" x2="86" y2="27" stroke="'+GRID+'" stroke-width="6" stroke-linecap="round"/>';
+ s+='<line x1="10" y1="27" x2="58" y2="27" stroke="#9db8d6" stroke-width="6" stroke-linecap="round"/>';
+ s+='<line x1="38" y1="17" x2="38" y2="37" stroke="'+C1+'" stroke-width="3"/>';
+ s+='<text x="38" y="13" font-size="7" text-anchor="middle" fill="'+TXT+'">中位</text>';
+ s+='<line x1="74" y1="19" x2="74" y2="35" stroke="'+C3+'" stroke-width="2.5"/>';
+ s+='<text x="74" y="47" font-size="7" text-anchor="middle" fill="'+TXT+'">P90</text>';return svgo(w,h,s);}
+function mkGauge(v){const w=96,h=54,pct=Math.min(100,v)/100;const a=Math.PI*(1-pct);
+ const x=48+30*Math.cos(a),y=44-30*Math.sin(a);
+ let s='<path d="M18 44 A30 30 0 0 1 78 44" fill="none" stroke="'+GRID+'" stroke-width="7" stroke-linecap="round"/>';
+ s+='<path d="M18 44 A30 30 0 '+(pct>0.5?1:0)+' 1 '+x.toFixed(1)+' '+y.toFixed(1)+'" fill="none" stroke="'+C1+'" stroke-width="7" stroke-linecap="round"/>';
+ s+='<text x="48" y="42" font-size="13" font-weight="700" text-anchor="middle" fill="#2C3B3E" font-family="Georgia,serif">'+v+'%</text>';return svgo(w,h,s);}
+function mkNum(t){return svgo(96,54,'<text x="48" y="32" font-size="15" font-weight="700" text-anchor="middle" fill="#2C3B3E" font-family="Georgia,serif">'+t+'</text><line x1="30" y1="42" x2="66" y2="42" stroke="'+C2+'" stroke-width="2"/>');}
+function mkMatrix(){let s='';const cols=[ '#eef2f6','#cdd9e6','#9db8d6','#5b82ad','#2f5a99'];
+ for(let r=0;r<3;r++)for(let c=0;c<5;c++){s+='<rect x="'+(14+c*14)+'" y="'+(10+r*13)+'" width="12" height="11" rx="1.5" fill="'+cols[(r*2+c)%5]+'"/>';}
+ return svgo(96,54,s);}
+/* 迷你行政區（REGIONS 縮放版，供各式地圖縮圖共用） */
+function miniRegions(fills){
+ let s='';
+ REGIONS.forEach((r,i)=>{
+  const pts=r.pts.split(' ').map(p=>{const[x,y]=p.split(',');return (x*0.36+7).toFixed(1)+','+(y*0.25+3).toFixed(1);}).join(' ');
+  s+='<polygon points="'+pts+'" fill="'+(fills?fills[i]:'#F1F3EF')+'" stroke="#fff" stroke-width="0.8"/>';
+ });
+ return s;
+}
+function mkMap(k){
+ let s='';
+ const GWRF=['#F6E3DF','#EBB7AD','#B8402F','#F6E3DF','#D98D7F','#EBB7AD','#F9EFED'];
+ const BLUF=['#D9E4F0','#E8EEF6','#C3D4E8','#CCDAEA','#E0E9F3','#2f5a99','#9FB9D8'];
+ const GRNF=['#DCEDE2','#BFDFCB','#8FC7A4','#DCEDE2','#5FA97D','#EAF4ED','#8FC7A4'];
+ const GRYF=['#EDEDEA','#DDDDD8','#C6C6BF','#EDEDEA','#B0B0A7','#8F8F85','#DDDDD8'];
+ switch(k){
+  case 0: /* 熱點：點位＋虛線熱區圈 */
+   s+=miniRegions();
+   [[52,20],[56,24],[50,25],[58,19],[54,28]].forEach(p=>{s+='<circle cx="'+p[0]+'" cy="'+p[1]+'" r="2" fill="'+C2+'"/>';});
+   [[30,18],[36,32],[62,36],[44,40],[26,30]].forEach(p=>{s+='<circle cx="'+p[0]+'" cy="'+p[1]+'" r="2" fill="'+C1+'" opacity=".8"/>';});
+   s+='<circle cx="54" cy="23" r="9" fill="none" stroke="'+C2+'" stroke-width="1.3" stroke-dasharray="3 2"/>';
+   break;
+  case 1: /* GWR：紅色深淺分區＋R²字樣 */
+   s+=miniRegions(GWRF);
+   s+='<text x="88" y="50" font-size="8" font-weight="700" fill="#20241F" text-anchor="end" font-family="JetBrains Mono,monospace">R²</text>';
+   break;
+  case 2: /* 行政區指標：藍色深淺分區 */
+   s+=miniRegions(BLUF);
+   break;
+  case 3: /* 等時圈：同心圓＋分隊＋圈外紅點 */
+   s+=miniRegions();
+   s+='<circle cx="42" cy="27" r="20" fill="rgba(47,90,153,.07)" stroke="#9FB9D8" stroke-dasharray="3 2"/>';
+   s+='<circle cx="42" cy="27" r="12" fill="rgba(47,90,153,.1)" stroke="#6E92BE" stroke-dasharray="3 2"/>';
+   s+='<rect x="38" y="23" width="8" height="8" rx="1.5" fill="'+C1+'"/>';
+   [[76,15],[80,20],[73,20]].forEach(p=>{s+='<circle cx="'+p[0]+'" cy="'+p[1]+'" r="2.2" fill="'+C2+'"/>';});
+   break;
+  case 4: /* 時空熱點：實線紅圈＋虛線橘圈 */
+   s+=miniRegions();
+   s+='<circle cx="38" cy="20" r="9" fill="rgba(184,64,47,.15)" stroke="'+C2+'" stroke-width="1.4"/>';
+   s+='<circle cx="68" cy="34" r="7" fill="rgba(201,138,0,.15)" stroke="'+C3+'" stroke-width="1.4" stroke-dasharray="3 2"/>';
+   s+='<circle cx="30" cy="40" r="5" fill="none" stroke="#9aa39a" stroke-width="1" stroke-dasharray="1.5 2"/>';
+   break;
+  case 5: /* 小多圖：兩片並排 */
+   s+='<rect x="6" y="8" width="40" height="38" rx="3" fill="#F1F3EF" stroke="#d5d9d0"/>';
+   s+='<rect x="52" y="8" width="40" height="38" rx="3" fill="#F1F3EF" stroke="#d5d9d0"/>';
+   [[20,24],[24,28],[18,29],[26,22]].forEach(p=>{s+='<circle cx="'+p[0]+'" cy="'+p[1]+'" r="2" fill="'+C1+'"/>';});
+   s+='<line x1="56" y1="40" x2="88" y2="14" stroke="#c8cfc8" stroke-width="2.5"/>';
+   [[70,28],[74,25],[67,31]].forEach(p=>{s+='<circle cx="'+p[0]+'" cy="'+p[1]+'" r="2" fill="'+C2+'"/>';});
+   break;
+  case 6: /* 流向網絡：節點＋粗細箭頭 */
+   s+=miniRegions();
+   s+='<path d="M22,16 Q34,16 44,24" fill="none" stroke="'+C1+'" stroke-width="1.5" opacity=".7"/>';
+   s+='<path d="M76,14 Q64,16 52,24" fill="none" stroke="'+C1+'" stroke-width="3" opacity=".7"/>';
+   s+='<path d="M30,42 Q38,36 44,30" fill="none" stroke="'+C1+'" stroke-width="1" opacity=".7"/>';
+   s+='<path d="M88,46 Q70,42 52,28" fill="none" stroke="'+C2+'" stroke-width="1.5" stroke-dasharray="3 2"/>';
+   s+='<rect x="44" y="22" width="8" height="8" rx="1.5" fill="'+C2+'"/>';
+   [[22,16],[76,14],[30,42]].forEach(p=>{s+='<rect x="'+(p[0]-3)+'" y="'+(p[1]-3)+'" width="6" height="6" rx="1" fill="'+C1+'"/>';});
+   break;
+  case 7: /* CPR：綠色深淺分區 */
+   s+=miniRegions(GRNF);
+   break;
+  case 8: /* 防護設備：藍色分區＋紅框最低區 */
+   s+=miniRegions(['#C3D4E8','#9FB9D8','#D9E4F0','#6E92BE','#E8EEF6','#2f5a99','#9FB9D8']);
+   s+='<polygon points="'+REGIONS[4].pts.split(' ').map(p=>{const[x,y]=p.split(',');return (x*0.36+7).toFixed(1)+','+(y*0.25+3).toFixed(1);}).join(' ')+'" fill="none" stroke="'+C2+'" stroke-width="1.6"/>';
+   break;
+  case 9: /* 空間掃描：紅色分區＋虛線橢圓 */
+   s+=miniRegions(['#F9EFED','#F6E3DF','#EBB7AD','#F6E3DF','#D98D7F','#C96A57','#F9EFED']);
+   s+='<ellipse cx="70" cy="29" rx="19" ry="13" fill="none" stroke="'+C2+'" stroke-width="1.6" stroke-dasharray="4 2.5"/>';
+   break;
+  case 10: /* 社經疊圖：灰階分區＋紅點 */
+   s+=miniRegions(GRYF);
+   [[73,30],[77,33],[70,34],[76,27],[54,29]].forEach(p=>{s+='<circle cx="'+p[0]+'" cy="'+p[1]+'" r="2" fill="'+C2+'"/>';});
+   break;
+  case 11: /* AI 預測：風險漸層圈＋虛線 */
+   s+=miniRegions();
+   s+='<circle cx="60" cy="23" r="13" fill="rgba(201,138,0,.25)"/>';
+   s+='<circle cx="60" cy="23" r="8" fill="rgba(184,64,47,.3)"/>';
+   s+='<circle cx="60" cy="23" r="11" fill="none" stroke="'+C2+'" stroke-width="1.3" stroke-dasharray="4 2.5"/>';
+   s+='<text x="10" y="49" font-size="7.5" font-weight="700" fill="'+C3+'" font-family="JetBrains Mono,monospace">AI→</text>';
+   break;
+  default:
+   s+=miniRegions();
+ }
+ return svgo(96,54,s);
+}
+function mkFunnel(d){const w=96,h=54,max=Math.max(...d.map(x=>x[1]));let s='';
+ d.slice(0,4).forEach((p,i)=>{const bw=Math.max(5,(p[1]/max)*74),y=6+i*12;
+  s+='<rect x="'+((96-bw)/2)+'" y="'+y+'" width="'+bw+'" height="8" rx="2" fill="'+(i===0?C1:['#5b82ad','#8fa8c8','#c0cfe0'][i-1])+'"/>';});
+ return svgo(w,h,s);}
+function mkScatter(){let s='<line x1="10" y1="46" x2="88" y2="46" stroke="'+GRID+'"/><line x1="10" y1="46" x2="10" y2="8" stroke="'+GRID+'"/>';
+ s+='<line x1="12" y1="44" x2="84" y2="12" stroke="#cfd8e6" stroke-dasharray="3 2" stroke-width="1.5"/>';
+ [[20,40],[30,34],[38,33],[46,25],[55,26],[62,17],[72,18],[50,15],[35,24]].forEach(p=>{s+='<circle cx="'+p[0]+'" cy="'+p[1]+'" r="2.6" fill="'+C1+'" opacity=".75"/>';});
+ return svgo(96,54,s);}
+
+/* ══ 第 11 章 空間分析：具象化大型示意圖（340×210，含圖例與判讀標註） ══ */
+const REGIONS=[ /* 手繪相鄰行政區多邊形（示意） */
+ {pts:"20,38 90,26 100,74 32,84",cx:57,cy:55,name:"甲區"},
+ {pts:"90,26 168,30 164,78 100,74",cx:130,cy:52,name:"乙區"},
+ {pts:"168,30 226,50 212,98 164,78",cx:192,cy:64,name:"丙區"},
+ {pts:"32,84 100,74 106,128 42,138",cx:70,cy:106,name:"丁區"},
+ {pts:"100,74 164,78 160,132 106,128",cx:132,cy:103,name:"戊區"},
+ {pts:"164,78 212,98 204,148 160,132",cx:184,cy:114,name:"己區"},
+ {pts:"42,138 106,128 160,132 150,178 62,172",cx:104,cy:152,name:"庚區"}
+];
+function detText(x,y,t,size,color,anchor,bold){
+ return '<text x="'+x+'" y="'+y+'" font-size="'+(size||10)+'" fill="'+(color||'#20241F')+'"'+
+  (anchor?' text-anchor="'+anchor+'"':'')+(bold?' font-weight="700"':'')+
+  ' font-family="Noto Sans TC,sans-serif">'+t+'</text>';
+}
+function mkDetailMap(kind){
+ const W=340,H=210;let s='';
+ if(kind===0){ /* 11-1 熱點地圖：點位＋熱區圈選 */
+  REGIONS.forEach(r=>{s+='<polygon points="'+r.pts+'" fill="#F4F6F2" stroke="#d5d9d0" stroke-width="1.2"/>';});
+  const red=[[120,60],[128,66],[124,72],[133,60],[138,68],[130,76],[118,68],[136,75],[127,54],[143,63],[70,110],[186,70],[95,145],[150,120]];
+  const blu=[[60,55],[75,95],[112,105],[145,140],[90,128],[176,105],[200,80],[125,155],[55,125]];
+  red.forEach(p=>{s+='<circle cx="'+p[0]+'" cy="'+p[1]+'" r="3.2" fill="'+C2+'" opacity=".85"/>';});
+  blu.forEach(p=>{s+='<circle cx="'+p[0]+'" cy="'+p[1]+'" r="3.2" fill="'+C1+'" opacity=".8"/>';});
+  s+='<circle cx="129" cy="66" r="24" fill="none" stroke="'+C2+'" stroke-width="2" stroke-dasharray="5 3"/>';
+  s+='<line x1="152" y1="52" x2="196" y2="30" stroke="'+C2+'" stroke-width="1.4"/>';
+  s+=detText(200,28,'熱區：某路口車禍反覆發生',10.5,C2,'',true);
+  s+=detText(200,42,'→ 交給交通局優先改善',9.5,'#6B726B');
+  s+=detText(20,200,'每 1 點 = 1 件事故（用 GPS 座標畫在地圖上）',10,'#6B726B');
+  s+='<circle cx="240" cy="192" r="4" fill="'+C2+'"/>'+detText(248,196,'車禍',10);
+  s+='<circle cx="284" cy="192" r="4" fill="'+C1+'"/>'+detText(292,196,'跌倒',10);
+ }
+ if(kind===1){ /* 11-2 GWR：區塊紅色深淺=局部係數 */
+  const fills=['#F6E3DF','#EBB7AD','#B8402F','#F6E3DF','#D98D7F','#EBB7AD','#F9EFED'];
+  REGIONS.forEach((r,i)=>{s+='<polygon points="'+r.pts+'" fill="'+fills[i]+'" stroke="#fff" stroke-width="1.5"/>';});
+  s+=detText(192,62,'!',15,'#fff','middle',true);
+  s+='<line x1="205" y1="50" x2="242" y2="34" stroke="'+C2+'" stroke-width="1.4"/>';
+  s+=detText(246,32,'最紅的區：',10.5,C2,'',true);
+  s+=detText(246,45,'住越遠送醫拖越久',9.5,'#20241F');
+  s+=detText(246,57,'＝救護涵蓋不足',9.5,'#20241F');
+  /* 圖例漸層 */
+  for(let i=0;i<6;i++){s+='<rect x="'+(20+i*16)+'" y="184" width="16" height="10" fill="'+['#F9EFED','#F6E3DF','#EBB7AD','#D98D7F','#C96A57','#B8402F'][i]+'"/>';}
+  s+=detText(20,170,'顏色＝「地區拖累送醫時間」的程度（GWR 局部係數）',10,'#6B726B');
+  s+=detText(20,207,'淺＝不受影響',9,'#6B726B');s+=detText(116,207,'深＝影響大',9,C2,'',true);
+  s+='<rect x="238" y="176" width="86" height="30" rx="4" fill="#F4F6F2" stroke="#d5d9d0"/>';
+  s+=detText(281,189,'總結指標',9,'#6B726B','middle');
+  s+=detText(281,202,'R² = 0.41',11,'#20241F','middle',true);
+ }
+ if(kind===2){ /* 11-3 行政區別指標：面量圖＋數字 */
+  const vals=[7.1,6.4,8.3,7.8,6.9,12.4,9.6];
+  const fills=['#D9E4F0','#E8EEF6','#C3D4E8','#CCDAEA','#E0E9F3','#2f5a99','#9FB9D8'];
+  REGIONS.forEach((r,i)=>{
+   s+='<polygon points="'+r.pts+'" fill="'+fills[i]+'" stroke="#fff" stroke-width="1.5"/>';
+   s+=detText(r.cx,r.cy,vals[i].toFixed(1),11,i===5?'#fff':'#20241F','middle',i===5);
+  });
+  s+='<line x1="196" y1="118" x2="240" y2="140" stroke="'+C2+'" stroke-width="1.4"/>';
+  s+=detText(244,140,'全市最慢：12.4 分',10.5,C2,'',true);
+  s+=detText(244,153,'→ 優先檢討這一區',9.5,'#20241F');
+  s+=detText(20,196,'一區一個數字（平均送醫時間，分鐘）；顏色越深＝越慢',10,'#6B726B');
+  for(let i=0;i<5;i++){s+='<rect x="'+(20+i*16)+'" y="200" width="16" height="8" fill="'+['#E8EEF6','#D9E4F0','#C3D4E8','#9FB9D8','#2f5a99'][i]+'"/>';}
+  s+=detText(104,207,'快 → 慢',9,'#6B726B');
+ }
+ if(kind===3){ /* 11-4 可近性：等時圈＋圈外熱點 */
+  REGIONS.forEach(r=>{s+='<polygon points="'+r.pts+'" fill="#F4F6F2" stroke="#d5d9d0" stroke-width="1.2"/>';});
+  const sx=110,sy=95;
+  s+='<circle cx="'+sx+'" cy="'+sy+'" r="82" fill="rgba(47,90,153,.06)" stroke="#9FB9D8" stroke-dasharray="4 3"/>';
+  s+='<circle cx="'+sx+'" cy="'+sy+'" r="52" fill="rgba(47,90,153,.08)" stroke="#6E92BE" stroke-dasharray="4 3"/>';
+  s+='<circle cx="'+sx+'" cy="'+sy+'" r="24" fill="rgba(47,90,153,.12)" stroke="'+C1+'"/>';
+  s+='<rect x="'+(sx-8)+'" y="'+(sy-8)+'" width="16" height="16" rx="3" fill="'+C1+'"/>';
+  s+='<rect x="'+(sx-1.5)+'" y="'+(sy-6)+'" width="3" height="12" fill="#fff"/><rect x="'+(sx-6)+'" y="'+(sy-1.5)+'" width="12" height="3" fill="#fff"/>';
+  s+=detText(sx,sy-30,'4分',9,C1,'middle',true);
+  s+=detText(sx,sy-58,'8分',9,'#6E92BE','middle',true);
+  s+=detText(sx,sy-88,'12分',9,'#9FB9D8','middle',true);
+  [[212,60],[220,70],[208,74]].forEach(p=>{s+='<circle cx="'+p[0]+'" cy="'+p[1]+'" r="3.5" fill="'+C2+'"/>';});
+  s+='<circle cx="214" cy="67" r="14" fill="none" stroke="'+C2+'" stroke-width="1.8" stroke-dasharray="4 3"/>';
+  s+='<line x1="228" y1="56" x2="256" y2="40" stroke="'+C2+'" stroke-width="1.4"/>';
+  s+=detText(258,38,'圈外熱區：',10.5,C2,'',true);
+  s+=detText(258,51,'12 分鐘到不了',9.5,'#20241F');
+  s+=detText(258,63,'→ 建議增設分隊',9.5,'#20241F');
+  s+=detText(20,200,'同心圓＝救護分隊出發後 4／8／12 分鐘能到的範圍',10,'#6B726B');
+ }
+ if(kind===4){ /* 11-5 時空熱點：熱區生命週期 */
+  REGIONS.forEach(r=>{s+='<polygon points="'+r.pts+'" fill="#F4F6F2" stroke="#d5d9d0" stroke-width="1.2"/>';});
+  s+='<circle cx="85" cy="66" r="24" fill="rgba(184,64,47,.14)" stroke="'+C2+'" stroke-width="2"/>';
+  s+=detText(85,44,'持續型',10,C2,'middle',true);s+=detText(85,32,'年年都在→工程改善',9,'#6B726B','middle');
+  s+='<circle cx="182" cy="112" r="19" fill="rgba(201,138,0,.14)" stroke="'+C3+'" stroke-width="2" stroke-dasharray="5 3"/>';
+  s+=detText(214,108,'新興型',10,'#8a5e00','',true);s+=detText(214,120,'今年才出現→要警覺',9,'#6B726B');
+  s+='<circle cx="66" cy="140" r="15" fill="none" stroke="#9aa39a" stroke-width="1.6" stroke-dasharray="2 3"/>';
+  s+=detText(66,168,'消退型',9.5,'#6B726B','middle');
+  s+=detText(20,196,'把「時間」切進熱點分析：同一批救護車，早上停哪、深夜停哪',10,'#6B726B');
+  s+=detText(20,208,'（早上＝住宅區跌倒熱區；深夜＝幹道車禍熱區）',9,'#6B726B');
+ }
+ if(kind===5){ /* 11-6 機轉別分層：小多圖 */
+  s+='<rect x="12" y="26" width="148" height="140" rx="6" fill="#F4F6F2" stroke="#d5d9d0"/>';
+  s+='<rect x="180" y="26" width="148" height="140" rx="6" fill="#F4F6F2" stroke="#d5d9d0"/>';
+  s+=detText(86,18,'高齡跌倒（社區尺度）',10.5,'#20241F','middle',true);
+  s+=detText(254,18,'機車事故（路口尺度）',10.5,'#20241F','middle',true);
+  [[60,70],[68,78],[55,82],[72,66],[63,90],[110,120],[48,74],[66,72]].forEach(p=>{s+='<circle cx="'+p[0]+'" cy="'+p[1]+'" r="3.2" fill="'+C1+'" opacity=".85"/>';});
+  s+='<circle cx="63" cy="77" r="20" fill="none" stroke="'+C1+'" stroke-dasharray="4 3" stroke-width="1.6"/>';
+  s+=detText(63,112,'某社區聚集',9,'#2f5a99','middle');s+=detText(86,156,'→ 衛生局：社區防跌',9.5,'#6B726B','middle');
+  s+='<line x1="196" y1="140" x2="316" y2="60" stroke="#c8cfc8" stroke-width="5"/>';
+  s+='<line x1="200" y1="56" x2="300" y2="150" stroke="#c8cfc8" stroke-width="5"/>';
+  [[252,100],[258,106],[247,105],[262,96],[240,112],[288,72],[218,132]].forEach(p=>{s+='<circle cx="'+p[0]+'" cy="'+p[1]+'" r="3.2" fill="'+C2+'" opacity=".9"/>';});
+  s+='<circle cx="253" cy="103" r="15" fill="none" stroke="'+C2+'" stroke-dasharray="4 3" stroke-width="1.6"/>';
+  s+=detText(254,156,'→ 交通局：路口改善',9.5,'#6B726B','middle');
+  s+=detText(20,196,'不同機轉＝不同地圖、不同主管機關；混成一張反而兩邊都不能用',10,'#6B726B');
+ }
+ if(kind===6){ /* 11-7 轉院流向網絡 */
+  REGIONS.forEach(r=>{s+='<polygon points="'+r.pts+'" fill="#F4F6F2" stroke="#d5d9d0" stroke-width="1.2"/>';});
+  const hub=[130,100];
+  s+='<path d="M52,62 Q90,60 118,92" fill="none" stroke="'+C1+'" stroke-width="3" opacity=".65"/>';
+  s+='<path d="M198,52 Q170,60 142,90" fill="none" stroke="'+C1+'" stroke-width="6" opacity=".65"/>';
+  s+='<path d="M82,150 Q100,132 122,110" fill="none" stroke="'+C1+'" stroke-width="2" opacity=".65"/>';
+  s+='<path d="M296,170 Q210,160 142,106" fill="none" stroke="'+C2+'" stroke-width="2.5" stroke-dasharray="6 4"/>';
+  s+='<rect x="122" y="92" width="16" height="16" rx="3" fill="'+C2+'"/>';
+  s+=detText(130,124,'重度級醫院',9.5,'#20241F','middle',true);
+  [[52,62],[198,52],[82,150]].forEach(p=>{s+='<rect x="'+(p[0]-6)+'" y="'+(p[1]-6)+'" width="12" height="12" rx="2" fill="'+C1+'"/>';});
+  s+='<circle cx="296" cy="170" r="6" fill="'+C2+'"/>';s+=detText(296,188,'離島',9,C2,'middle');
+  s+='<line x1="206" y1="44" x2="244" y2="30" stroke="'+C2+'" stroke-width="1.4"/>';
+  s+=detText(248,28,'轉出量最大：',10,C2,'',true);s+=detText(248,41,'當地重症能量不足',9.5,'#20241F');
+  s+=detText(20,196,'箭頭粗細＝轉院量；虛線＝跨海後送（B17）',10,'#6B726B');
+ }
+ if(kind===7){ /* 11-8 目擊者CPR率 */
+  const fills=['#DCEDE2','#BFDFCB','#8FC7A4','#DCEDE2','#5FA97D','#EAF4ED','#8FC7A4'];
+  const vals=['58%','64%','71%','55%','76%','32%','69%'];
+  REGIONS.forEach((r,i)=>{s+='<polygon points="'+r.pts+'" fill="'+fills[i]+'" stroke="#fff" stroke-width="1.5"/>';
+   s+=detText(r.cx,r.cy,vals[i],10,'#20241F','middle',i===5);});
+  s+='<line x1="196" y1="118" x2="240" y2="140" stroke="'+C2+'" stroke-width="1.4"/>';
+  s+=detText(244,140,'目擊 CPR 率最低（32%）',10,C2,'',true);
+  s+=detText(244,153,'→ 社區 CPR 訓練＋AED 布建',9.5,'#20241F');
+  s+=detText(20,196,'OHCA 個案中，救護到場前有旁人 CPR 的比例（Utstein）',10,'#6B726B');
+  for(let i=0;i<5;i++){s+='<rect x="'+(20+i*16)+'" y="200" width="16" height="8" fill="'+['#EAF4ED','#DCEDE2','#BFDFCB','#8FC7A4','#5FA97D'][i]+'"/>';}
+  s+=detText(104,207,'低 → 高',9,'#6B726B');
+ }
+ if(kind===8){ /* 11-9 安全帽使用率 */
+  const fills=['#C3D4E8','#9FB9D8','#D9E4F0','#6E92BE','#E8EEF6','#2f5a99','#9FB9D8'];
+  const vals=['88%','92%','84%','95%','79%','96%','91%'];
+  REGIONS.forEach((r,i)=>{s+='<polygon points="'+r.pts+'" fill="'+fills[i]+'" stroke="#fff" stroke-width="1.5"/>';
+   s+=detText(r.cx,r.cy,vals[i],10,i===5?'#fff':'#20241F','middle',i===4);});
+  s+='<line x1="112" y1="112" x2="80" y2="150" stroke="'+C2+'" stroke-width="1.4"/>';
+  s+=detText(30,164,'使用率最低（79%）→ 稽查重點區',10,C2,'',true);
+  s+=detText(20,196,'機車事故傷患的安全帽使用率；疊上頭部 AIS≥3 比例＝「不戴的代價」',10,'#6B726B');
+ }
+ if(kind===9){ /* 11-10 風險校正死亡空間掃描 */
+  const fills=['#F9EFED','#F6E3DF','#EBB7AD','#F6E3DF','#D98D7F','#C96A57','#F9EFED'];
+  REGIONS.forEach((r,i)=>{s+='<polygon points="'+r.pts+'" fill="'+fills[i]+'" stroke="#fff" stroke-width="1.5"/>';});
+  s+='<ellipse cx="172" cy="105" rx="52" ry="38" fill="none" stroke="'+C2+'" stroke-width="2.5" stroke-dasharray="7 4"/>';
+  s+='<line x1="212" y1="78" x2="248" y2="56" stroke="'+C2+'" stroke-width="1.4"/>';
+  s+=detText(250,52,'顯著聚集區：',10.5,C2,'',true);
+  s+=detText(250,65,'校正年齡與 ISS 後',9.5,'#20241F');
+  s+=detText(250,77,'死亡率仍偏高 1.8 倍',9.5,'#20241F');
+  s+=detText(20,196,'空間掃描統計（SaTScan）＋貝氏平滑',10,'#6B726B');
+  s+=detText(20,208,'排除「病人本來就比較重」後仍異常的地區',9.5,'#6B726B');
+ }
+ if(kind===10){ /* 11-11 社經 × 傷害疊圖 */
+  const fills=['#EDEDEA','#DDDDD8','#C6C6BF','#EDEDEA','#B0B0A7','#8F8F85','#DDDDD8'];
+  REGIONS.forEach((r,i)=>{s+='<polygon points="'+r.pts+'" fill="'+fills[i]+'" stroke="#fff" stroke-width="1.5"/>';});
+  [[184,110],[192,118],[178,120],[190,102],[130,105],[70,110],[186,128]].forEach(p=>{s+='<circle cx="'+p[0]+'" cy="'+p[1]+'" r="3.2" fill="'+C2+'" opacity=".85"/>';});
+  s+=detText(20,196,'底色＝社經剝奪程度（G01 健保類別）；紅點＝重傷個案',10,'#6B726B');
+  s+='<rect x="240" y="140" width="86" height="62" rx="4" fill="#fff" stroke="#d5d9d0"/>';
+  s+='<line x1="250" y1="192" x2="318" y2="192" stroke="'+GRID+'"/><line x1="250" y1="192" x2="250" y2="150" stroke="'+GRID+'"/>';
+  [[256,186],[268,180],[280,172],[292,166],[304,158]].forEach(p=>{s+='<circle cx="'+p[0]+'" cy="'+p[1]+'" r="2.4" fill="'+C1+'"/>';});
+  s+='<line x1="252" y1="188" x2="314" y2="156" stroke="'+C2+'" stroke-width="1.5" stroke-dasharray="3 2"/>';
+  s+=detText(283,150,'剝奪↑ 發生率↑',8.5,'#20241F','middle',true);
+ }
+ if(kind===11){ /* 11-12 AI 預測熱區 */
+  REGIONS.forEach(r=>{s+='<polygon points="'+r.pts+'" fill="#F4F6F2" stroke="#d5d9d0" stroke-width="1.2"/>';});
+  s+='<circle cx="150" cy="78" r="30" fill="rgba(201,138,0,.22)"/>';
+  s+='<circle cx="150" cy="78" r="19" fill="rgba(184,64,47,.28)"/>';
+  s+='<circle cx="150" cy="78" r="26" fill="none" stroke="'+C2+'" stroke-width="2" stroke-dasharray="6 4"/>';
+  s+='<line x1="172" y1="60" x2="212" y2="38" stroke="'+C2+'" stroke-width="1.4"/>';
+  s+=detText(216,36,'預測：本週末深夜',10.5,C2,'',true);
+  s+=detText(216,49,'高風險路段 → 提前部署',9.5,'#20241F');
+  s+='<rect x="20" y="172" width="196" height="24" rx="4" fill="#F4F6F2" stroke="#d5d9d0"/>';
+  s+=detText(28,188,'模型輸入：3 年事故點位 × 時段 × 季節 × 假日',9.5,'#6B726B');
+  s+=detText(20,208,'從「回顧統計」變成「事前部署」——AI＋GIS 的落地示範',10,'#6B726B');
+ }
+ return svgo(W,H,s);
+}
+function drawViz(v){switch(v.t){
+ case'bar':return mkBar(v.d);case'hbar':return mkHBar(v.d);case'line':return mkLine(v.d);
+ case'pie':return mkPie(v.d);case'hist':return mkHist(v.d);case'stack':return mkStack(v.d);
+ case'box':return mkBox(v.d);case'gauge':return mkGauge(v.d);case'num':return mkNum(v.d);
+ case'matrix':return mkMatrix();case'map':return mkMap(v.d);case'funnel':return mkFunnel(v.d);
+ case'scatter':return mkScatter();default:return mkNum('—');}}
+const VIZNAME={bar:'長條圖',hbar:'水平長條圖',line:'趨勢折線圖',pie:'圓餅圖',hist:'直方圖',stack:'堆疊比例圖',box:'中位數＋P90 分布',gauge:'比率指標（KPI）',num:'統計數字卡',matrix:'交叉表／矩陣',map:'地圖',funnel:'漏斗圖',scatter:'散佈圖'};
+const SRCNAME={VSTR:['vstr','澳洲 VSTR'],JTDB:['jtdb','日本 JTDB'],TARN:['tarn','英國 TARN'],NTDS:['ntds','美國 NTDS/TQIP'],KH:['kh','高雄 2023']};
+
+/* ══════════════ 索引 ══════════════ */
+const FMAP={};FIELDS.forEach(f=>FMAP[f[0]]=f);
+const USES={};FIELDS.forEach(f=>USES[f[0]]=[]);
+IND.forEach(ind=>ind.f.forEach(c=>{if(USES[c])USES[c].push(ind.id);}));
+const IMAP={};IND.forEach(i=>IMAP[i.id]=i);
+
+/* ══════════════ 渲染：統計列 ══════════════ */
+document.getElementById('statsrow').innerHTML=
+ '<div class="st"><b>'+FIELDS.length+'</b><span>候選欄位（A–G）</span></div>'+
+ '<div class="st"><b>'+IND.length+'</b><span>年報可呈現產出</span></div>'+
+ '<div class="st"><b>'+CHAPTERS.length+'</b><span>年報章節</span></div>'+
+ '<div class="st"><b>'+IND.filter(i=>i.tw).length+'</b><span>台灣特色項目</span></div>'+
+ '<div class="st"><b>4+1</b><span>國際年報對照來源</span></div>';
+
+/* ══════════════ 渲染：View A 依章節 ══════════════ */
+function renderA(){
+ let h='';
+ /* ── 填答者基本資料（第一頁、強制先填） ── */
+ h+='<div class="respondent" id="respondent-box"><h3>填答者基本資料 <span style="font-size:12px;color:var(--red);font-weight:500;">＊請先填寫姓名，才能開始評分（姓名同時是雲端自動存檔的識別碼）</span></h3><div class="respondent-grid">'+
+  '<div><label>姓名（可用代號）— 同時是雲端進度的識別碼</label><input id="r_name" type="text" oninput="saveState()" onblur="onNameBlur()"></div>'+
+  '<div><label>服務單位／職稱</label><input id="r_org" type="text" oninput="saveState()"></div>'+
+  '<div><label>專長領域</label><input id="r_field" type="text" oninput="saveState()"></div>'+
+  '<div><label>創傷相關年資（年）</label><input id="r_year" type="text" oninput="saveState()"></div></div></div>';
+ h+='<div class="qtoolbar">'+
+  '<button onclick="submitOnline()">送出至團隊（線上回收）</button>'+
+  '<button class="secondary" onclick="exportCSV()">下載填答結果（CSV）</button>'+
+  '<button class="secondary" onclick="window.print()">列印本頁</button>'+
+  '<button class="danger" onclick="clearAllAnswers()">清空所有填答</button>'+
+  '<span id="progress">已完成 0 項</span>'+
+  '<span id="savestat" style="font-size:11.5px;color:var(--green);font-family:JetBrains Mono,monospace;"></span></div>';
+ h+='<div class="qtoolbar" style="margin-top:-8px;">'+
+  '<span id="cloudstat" style="font-size:12px;color:var(--blue);">☁ 填寫「姓名」後，進度會自動同步雲端；換裝置輸入相同姓名即可續填</span>'+
+  '<button class="secondary" style="font-size:12px;padding:6px 12px;" onclick="manualCloudRestore()">↻ 從雲端還原進度</button></div>';
+ h+='<div id="saveinfo" class="disclaimer" style="margin-top:0;display:none;"></div>';
+ h+='<p style="font-size:13.5px;color:#3A403C;max-width:860px;"><b>評分方式：</b>點開任一項年報產出，於彈窗內詳閱示意圖、所需欄位與統計方法後，評定其<b>重要性、可行性（1–7）</b>並勾選<b>必要／選配</b>。評完關閉彈窗，卡片會標「✓ 已評」。</p>';
+ CHAPTERS.forEach(ch=>{
+  const [num,title,en,desc,tw]=ch;
+  h+='<h2 class="chap" id="ch'+num+'"><span class="badge">第 '+num+' 章</span>'+title+
+     (tw?' <span class="twtag">台灣特色</span>':'')+
+     ' <span style="font-family:JetBrains Mono,monospace;font-size:12px;color:var(--muted);font-weight:400;">'+en+'</span></h2>';
+  h+='<p class="chap-sub">'+desc+'</p>';
+  IND.filter(i=>i.ch===num).forEach(ind=>{
+   const badges=(ind.intl||[]).map(x=>{const m=SRCNAME[x[0]];return m?'<span class="ibadge '+m[0]+'">'+m[1]+'</span>':'';}).join('');
+   h+='<div class="icard'+(ind.tw?' tw':'')+'" id="card-'+ind.id+'" data-search="'+(ind.name+' '+ind.f.join(' ')).toLowerCase()+'">';
+   h+='<div class="head" onclick="openInd(\''+ind.id+'\')">';
+   h+='<div class="thumb">'+drawViz(ind.viz)+'</div>';
+   h+='<div class="tmain"><div class="iname"><span class="icode">'+ind.id+'</span>'+ind.name+'</div>';
+   h+='<div class="imeta"><span class="statchip">'+VIZNAME[ind.viz.t]+'</span>'+
+      '<span class="statchip">'+ind.f.length+' 個欄位</span>'+badges+
+      (ind.tw?'<span class="ibadge kh" style="color:#1f6b47;">台灣特色</span>':'')+
+      '<span class="fstat" id="istat-'+ind.id+'">未評</span></div></div>';
+   h+='<span class="arrow">›</span></div>';
+   h+='</div>';
+  });
+  /* 章末：想看什麼指標的建議欄 */
+  h+='<div class="chsug"><div class="cs-t">💡 您希望「'+title+'」這一章再呈現哪些指標或圖表？</div>'+
+     '<textarea class="cmt" id="chsug_'+num+'" oninput="setChSug(\''+num+'\',this.value)" placeholder="例如：想看○○的分布、想依△△分層比較⋯（選填，會隨問卷一併送出）"></textarea></div>';
+ });
+ /* gap section */
+ h+='<h2 class="chap" id="chgap"><span class="badge" style="background:var(--red);">附錄</span>國際年報有、目前欄位做不到（或需簡化）的項目</h2>';
+ h+='<p class="chap-sub">誠實標出邊界：這些是四國年報呈現、但 69 個候選欄位尚無法支撐的內容——點擊查看說明。</p>';
+ GAPS.forEach((g,gi)=>{h+='<div class="gap" data-search="'+g[0].toLowerCase()+'" onclick="openGap('+gi+')"><div class="gt">'+g[0]+' <span class="arrow" style="color:var(--muted);font-size:13px;">›</span></div></div>';});
+ h+='<div class="chsug"><div class="cs-t">💡 還有任何本頁未列出、但您認為年報應該呈現的內容嗎？</div>'+
+    '<textarea class="cmt" id="chsug_extra" oninput="setChSug(\'extra\',this.value)" placeholder="任何想法都歡迎（選填，會隨問卷一併送出）"></textarea></div>';
+ /* 開放總結題 */
+ h+='<h2 class="chap"><span class="badge" style="background:var(--green);">開放</span>總結與實務意見</h2>';
+ h+='<p class="chap-sub">共 '+OPEN_QS.length+' 題（選填，但對團隊非常重要）</p>';
+ OPEN_QS.forEach(q=>{
+  h+='<div class="frow" style="cursor:default;">';
+  h+='<div class="fh"><span class="fn">'+q[1]+'</span></div>';
+  h+='<div class="fdef" style="display:block;">'+q[2]+'</div>';
+  if(q[3])h+='<div class="fdef" style="display:block;color:var(--muted);">'+q[3]+'</div>';
+  h+='<textarea class="cmt" style="min-height:70px;" id="open_'+q[0]+'" oninput="setOpen(\''+q[0]+'\',this.value)" placeholder="請輸入您的意見（選填）"></textarea>';
+  h+='</div>';
+ });
+ document.getElementById('viewA').innerHTML=h;
+}
+
+/* ══════════════ Modal 內容產生器 ══════════════ */
+function indDetailHtml(ind){
+ let h='';
+ if(ind.viz.t==='map'){
+  h+='<div class="demo"><div style="max-width:360px;">'+mkDetailMap(ind.viz.d)+'</div>'+
+     '<div class="dcap">▲ 示意圖（假資料）：實際年報將以真實個案 GPS 座標與行政區界繪製</div></div>';
+ }else{
+  h+='<div class="demo"><div style="max-width:340px;height:120px;">'+drawViz(ind.viz)+'</div>'+
+     '<div class="dcap">▲ 示意圖（假資料／借用高雄 2023 數值），僅呈現圖表型態：'+VIZNAME[ind.viz.t]+'</div></div>';
+ }
+ if(ind.plain){
+  h+='<div class="blocklbl">解說</div>';
+  h+='<div class="plainbox">';
+  h+='<div class="prow"><span class="plbl">❓ 回答什麼問題</span><span>'+ind.plain.q+'</span></div>';
+  h+='<div class="prow"><span class="plbl">👀 圖上看什麼</span><span>'+ind.plain.read+'</span></div>';
+  h+='<div class="prow"><span class="plbl">🛠 結果怎麼用</span><span>'+ind.plain.act+'</span></div>';
+  h+='</div>';
+ }
+ h+='<div class="blocklbl">需要的問卷欄位（點擊可查看該欄位並評分）</div><div class="fchips">';
+ ind.f.forEach(c=>{const f=FMAP[c];if(!f)return;
+  h+='<button class="fchip '+f[2]+'" onclick="openField(\''+c+'\')" title="'+f[3].replace(/"/g,'&quot;')+'"><code>'+c+'</code>'+f[1]+'</button>';});
+ h+='</div>';
+ const cores=ind.f.filter(c=>FMAP[c]&&FMAP[c][2]==='core'),opts=ind.f.filter(c=>FMAP[c]&&FMAP[c][2]==='opt');
+ h+='<div class="tierline">核心傾向 <b class="c">'+cores.length+'</b> 欄';
+ if(opts.length)h+='　·　進階傾向 <b class="o">'+opts.length+'</b> 欄（'+opts.join('、')+'）——<b class="o">若這些欄位未納入或不可行，本項產出將無法完整呈現</b>';
+ h+='</div>';
+ h+='<div class="blocklbl">計算方式</div><div class="calc">'+ind.calc+'</div>';
+ h+='<div class="blocklbl">統計呈現</div><div class="stat">'+ind.stat+'</div>';
+ if(ind.intl&&ind.intl.length){
+  h+='<div class="blocklbl">國際／自家對照</div><div class="intl-list">';
+  ind.intl.forEach(x=>{const m=SRCNAME[x[0]];
+   h+='<div class="intl-item"><span class="ibadge '+m[0]+'">'+m[1]+'</span><span class="val">'+x[1]+'</span></div>';});
+  h+='</div>';}
+ if(ind.note)h+='<div class="note">💡 '+ind.note+'</div>';
+ /* ── 問卷評分區（評「此項產出」；強制先填姓名） ── */
+ h+='<div class="blocklbl">問卷評分（評此項產出）</div>';
+ if(normName().length<2){
+  h+='<div class="note" style="background:#FDF0EE;color:#8a3a2c;border:1px dashed var(--red);">'+
+     '🔒 請先於第一頁上方填寫<b>填答者基本資料（姓名）</b>後即可評分——姓名是雲端自動存檔的識別碼，先填才不會遺失紀錄。'+
+     '<br><button class="uchip" style="margin-top:8px;" onclick="closeModal();switchTab(\'A\');document.getElementById(\'respondent-box\').scrollIntoView({behavior:\'smooth\'});document.getElementById(\'r_name\').focus();">前往填寫基本資料</button></div>';
+ }else{
+  const a=ANSWERS[ind.id]||{};
+  h+='<div class="ratebox" style="border-top:none;margin-top:0;padding-top:0;">';
+  h+='<div class="scalerow"><span class="slabel">重要性</span>'+buildRadios(ind.id,'imp',a.imp)+'<span class="anchor">1 極低 → 7 極高</span></div>';
+  h+='<div class="scalerow"><span class="slabel">可行性</span>'+buildRadios(ind.id,'fea',a.fea)+'<span class="anchor">1 極難 → 7 極易</span></div>';
+  h+='<div class="scalerow"><span class="slabel">呈現層級</span><div class="radios yn">'+
+     '<label><input type="radio" name="lvl_'+ind.id+'" value="必要"'+(a.lvl==='必要'?' checked':'')+' onchange="setAns(\''+ind.id+'\',\'lvl\',this.value)"><span class="box">必要</span></label>'+
+     '<label><input type="radio" name="lvl_'+ind.id+'" value="選配"'+(a.lvl==='選配'?' checked':'')+' onchange="setAns(\''+ind.id+'\',\'lvl\',this.value)"><span class="box">選配</span></label>'+
+     '</div><span class="anchor">建議此產出列為年報必要呈現或進階選配</span></div>';
+  h+='<textarea class="cmt" placeholder="補充意見（選填）" oninput="setAns(\''+ind.id+'\',\'cmt\',this.value)">'+(a.cmt||'').replace(/</g,'&lt;')+'</textarea>';
+  h+='</div>';
+ }
+ return h;
+}
+function fieldDetailHtml(code){
+ const f=FMAP[code];const uses=USES[code]||[];
+ let h='';
+ h+='<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:6px;">'+
+    '<span class="tierbadge '+f[2]+'">'+(f[2]==='core'?'核心傾向':'進階傾向')+'</span>'+
+    '<span class="ucount">支撐 '+uses.length+' 項年報產出</span></div>';
+ h+='<div class="fdef" style="font-size:13.5px;">'+f[3]+'</div>';
+ h+='<div class="blocklbl">此欄位支撐的年報產出（點擊前往該項評分）</div><div class="fchips">';
+ if(uses.length){uses.forEach(id=>{h+='<button class="uchip" onclick="openInd(\''+id+'\')">'+id+' '+IMAP[id].name+'</button>';});}
+ else h+='<span class="ucount">（無直接對應產出）</span>';
+ h+='</div>';
+ h+='<div class="note" style="margin-top:14px;">ℹ️ 本頁為參考資料，評分請於「① 年報產出」各項目中進行。</div>';
+ return h;
+}
+
+/* ══════════════ 渲染：View B 欄位反查＋問卷填答 ══════════════ */
+function buildRadios(code,kind,cur){
+ let h='<div class="radios">';
+ for(let i=1;i<=7;i++)h+='<label><input type="radio" name="'+kind+'_'+code+'" value="'+i+'"'+(String(cur)===String(i)?' checked':'')+' onchange="setAns(\''+code+'\',\''+kind+'\',this.value)"><span class="box">'+i+'</span></label>';
+ return h+'</div>';
+}
+function renderB(){
+ let h='<p style="font-size:13.5px;color:#3A403C;max-width:840px;"><b>本頁為參考資料，不需評分。</b>點擊任一欄位可見其定義與它支撐的年報產出（點產出名稱即跳至該項評分）。<b>支撐產出數越多的欄位，在年報中的「槓桿」越大</b>——評分產出時可隨時回來查閱。</p>';
+ Object.keys(CATS).forEach(L=>{
+  h+='<h2 class="fcat" id="fcat'+L+'"><span class="badge">'+L+'</span>'+CATS[L]+'</h2>';
+  h+='<p class="fcat-sub">共 '+FIELDS.filter(f=>f[0][0]===L).length+' 欄</p>';
+  FIELDS.filter(f=>f[0][0]===L).forEach(f=>{
+   const uses=USES[f[0]]||[];
+   h+='<div class="frow" id="field-'+f[0]+'" data-search="'+(f[0]+' '+f[1]).toLowerCase()+'" onclick="openField(\''+f[0]+'\')">';
+   h+='<div class="fh"><code>'+f[0]+'</code><span class="fn">'+f[1]+'</span>'+
+      '<span class="tierbadge '+f[2]+'">'+(f[2]==='core'?'核心傾向':'進階傾向')+'</span>'+
+      '<span class="ucount">支撐 '+uses.length+' 項產出</span></div>';
+   h+='<div class="fdef">'+f[3]+'</div>';
+   h+='</div>';
+  });
+ });
+ document.getElementById('viewB').innerHTML=h;
+}
+const OPEN_QS=[
+ ["q1","收案範圍確認","針對本次會議確認之收案範圍：「因急性創傷住院、急診轉院、急診死亡之個案」，是否有其他補充？",""],
+ ["q2","實務障礙說明","若您對上述任一欄位給予「可行性 1–3 分」，請簡述其在貴院實務推動上的最大障礙。","例：本院資訊系統無法拋轉、急診第一線無暇詢問等。"]
+];
+const OPENS={};
+function setOpen(id,v){OPENS[id]=v;saveState();}
+const CHSUG={};   /* 章末「想看的指標」建議 */
+function setChSug(ch,v){CHSUG[ch]=v;saveState();}
+const CHNAME={};CHAPTERS.forEach(c=>CHNAME[c[0]]=c[1]);CHNAME['extra']='其他補充';
+
+/* ══════════════ 互動 ══════════════ */
+function switchTab(t){
+ document.getElementById('viewA').classList.toggle('hidden',t!=='A');
+ document.getElementById('viewB').classList.toggle('hidden',t!=='B');
+ document.getElementById('tabA').classList.toggle('active',t==='A');
+ document.getElementById('tabB').classList.toggle('active',t==='B');
+ doSearch();
+}
+/* ══════════════ Modal 系統 ══════════════ */
+let mstack=[];
+function showModal(title,bodyHtml){
+ document.getElementById('mtitle').innerHTML=title;
+ document.getElementById('mbody').innerHTML=bodyHtml;
+ document.getElementById('mbody').scrollTop=0;
+ document.getElementById('mback').classList.toggle('show',mstack.length>1);
+ document.getElementById('overlay').classList.add('show');
+ document.body.classList.add('modal-open');
+}
+function renderModalTop(){
+ const top=mstack[mstack.length-1];if(!top){closeModal();return;}
+ const [type,key]=top;
+ if(type==='ind'){const ind=IMAP[key];
+  showModal('<span class="mcode">'+ind.id+'</span>'+ind.name+(ind.tw?' <span class="twtag" style="font-size:10px;background:var(--green);padding:1px 7px;border-radius:8px;">台灣特色</span>':''),indDetailHtml(ind));}
+ else if(type==='field'){const f=FMAP[key];
+  showModal('<span class="mcode">'+key+'</span>'+f[1],fieldDetailHtml(key));}
+ else if(type==='gap'){const g=GAPS[key];
+  showModal('<span class="mcode">缺口</span>'+g[0],'<div class="calc" style="border-left-color:var(--red);">'+g[1]+'</div>');}
+}
+function pushModal(type,key){
+ const top=mstack[mstack.length-1];
+ if(top&&top[0]===type&&top[1]===key)return; /* 避免重複堆疊同一層 */
+ mstack.push([type,key]);renderModalTop();
+}
+function modalBack(){mstack.pop();if(mstack.length)renderModalTop();else closeModal();}
+function closeModal(){
+ mstack=[];
+ document.getElementById('overlay').classList.remove('show');
+ document.body.classList.remove('modal-open');
+ updateProgress();
+}
+function openInd(id){pushModal('ind',id);}
+function openField(code){pushModal('field',code);}
+function openGap(i){pushModal('gap',i);}
+document.addEventListener('keydown',e=>{
+ if(e.key==='Escape'&&document.getElementById('overlay').classList.contains('show'))modalBack();
+});
+function doSearch(){
+ const q=document.getElementById('search').value.trim().toLowerCase();
+ const inA=!document.getElementById('viewA').classList.contains('hidden');
+ const sel=inA?'#viewA .icard, #viewA .gap':'#viewB .frow';
+ document.querySelectorAll(sel).forEach(el=>{
+  el.classList.toggle('hidden',q!==''&&!(el.dataset.search||'').includes(q));
+ });
+ /* hide empty chapter headers when searching */
+ const heads=inA?document.querySelectorAll('#viewA h2.chap, #viewA p.chap-sub'):document.querySelectorAll('#viewB h2.fcat, #viewB p.fcat-sub');
+ heads.forEach(el=>el.classList.toggle('hidden',false));
+ if(q!==''&&inA){
+  CHAPTERS.forEach(ch=>{
+   const any=IND.filter(i=>i.ch===ch[0]).some(i=>{const el=document.getElementById('card-'+i.id);return el&&!el.classList.contains('hidden');});
+   const hEl=document.getElementById('ch'+ch[0]);
+   if(hEl){hEl.classList.toggle('hidden',!any);if(hEl.nextElementSibling)hEl.nextElementSibling.classList.toggle('hidden',!any);}
+  });
+ }
+}
+window.onscroll=function(){
+ document.getElementById('backToTopBtn').style.display=
+  (document.documentElement.scrollTop>400)?'flex':'none';
+};
+
+/* ══════════════ 問卷填答邏輯（答案集中存於 ANSWERS，Modal 開關不遺失） ══════════════ */
+const ANSWERS={};
+function setAns(code,kind,value){
+ if(!ANSWERS[code])ANSWERS[code]={};
+ ANSWERS[code][kind]=value;
+ updateProgress();
+ saveState();
+}
+
+/* ══════════════ 自動存檔（瀏覽器 localStorage；同一裝置同一瀏覽器可續填） ══════════════ */
+const STORAGE_KEY='ttr_delphi_mapping_v1';
+let saveTimer=null;
+function saveState(){
+ clearTimeout(saveTimer);
+ saveTimer=setTimeout(function(){
+  try{
+   const state=collectState();
+   localStorage.setItem(STORAGE_KEY,JSON.stringify(state));
+   const el=document.getElementById('savestat');
+   if(el)el.textContent='已自動儲存 '+new Date().toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'});
+  }catch(e){/* 無痕模式或封鎖儲存時靜默略過，功能其餘照常 */}
+  scheduleCloudSave();   /* 本機存檔後，接著排程雲端自動同步 */
+ },300);
+}
+function applyState(state,srcLabel){
+ if(!state)return;
+ if(state.ts)LAST_TS=state.ts;
+ if(state.answers)Object.keys(state.answers).forEach(k=>{ANSWERS[k]=state.answers[k];});
+ if(state.info){
+  const map={r_name:'name',r_org:'org',r_field:'field',r_year:'year'};
+  Object.keys(map).forEach(id=>{const el=document.getElementById(id);if(el&&state.info[map[id]])el.value=state.info[map[id]];});
+ }
+ if(state.opens){
+  Object.keys(state.opens).forEach(k=>{OPENS[k]=state.opens[k];
+   const el=document.getElementById('open_'+k);if(el&&state.opens[k])el.value=state.opens[k];});
+ }
+ if(state.chsug){
+  Object.keys(state.chsug).forEach(k=>{CHSUG[k]=state.chsug[k];
+   const el=document.getElementById('chsug_'+k);if(el&&state.chsug[k])el.value=state.chsug[k];});
+ }
+ const done=Object.keys(ANSWERS).filter(k=>{const a=ANSWERS[k];return a&&a.imp&&a.fea&&a.lvl;}).length;
+ if(Object.keys(ANSWERS).length>0){
+  const box=document.getElementById('saveinfo');
+  if(box){
+   const t=state.ts?new Date(state.ts).toLocaleString('zh-TW'):'';
+   box.style.display='block';
+   box.innerHTML='<b>【已復原'+(srcLabel||'上次')+'進度】</b> 填答時間 '+t+'（已完成 '+done+'／'+IND.length+' 項），已自動載入，可從停下的地方繼續；若要重新開始，請按「清空所有填答」。<br><span style="font-size:12px;">※ 本機自動存檔僅存於<b>這台裝置的這個瀏覽器</b>；要換裝置續填請按「☁ 儲存雲端草稿」取得取回碼。填寫完成請務必按「送出至團隊」。</span>';
+  }
+ }
+ updateProgress();
+}
+function loadState(){
+ try{
+  const raw=localStorage.getItem(STORAGE_KEY);
+  if(raw)applyState(JSON.parse(raw),'上次（本機）');
+ }catch(e){/* 讀取失敗則從空白開始 */}
+ const name=normName();
+ if(name.length>=2){lastCheckedName=name;cloudCheck(name,{});}
+}
+
+/* ══════════════ 雲端自動同步（以「姓名」為識別，免按任何按鈕） ══════════════ */
+let LAST_TS=null;          /* 目前頁面資料的時間戳 */
+let cloudTimer=null;
+let lastCheckedName='';
+function normName(){return (val('r_name')||'').trim();}
+function collectState(){
+ const ts=new Date().toISOString();LAST_TS=ts;
+ return {info:{name:val('r_name'),org:val('r_org'),field:val('r_field'),year:val('r_year')},
+         answers:ANSWERS,opens:OPENS,chsug:CHSUG,ts:ts};
+}
+function cloudStat(msg,warn){const el=document.getElementById('cloudstat');
+ if(el){el.textContent=msg;el.style.color=warn?'var(--red)':'var(--blue)';}}
+function scheduleCloudSave(){
+ if(normName().length<2)return;      /* 尚未填姓名 → 只存本機 */
+ clearTimeout(cloudTimer);
+ cloudTimer=setTimeout(function(){cloudSave(false);},2500);
+}
+function cloudSave(useBeacon){
+ const name=normName();
+ if(name.length<2)return;
+ const payload=JSON.stringify({action:'saveDraft',code:name,state:collectState()});
+ if(useBeacon&&navigator.sendBeacon){
+  try{navigator.sendBeacon(WEBAPP_URL,new Blob([payload],{type:'text/plain;charset=utf-8'}));}catch(e){}
+  return;
+ }
+ fetch(WEBAPP_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:payload})
+  .then(r=>r.json())
+  .then(j=>{if(j&&j.ok)cloudStat('☁ 已自動同步雲端 '+new Date().toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'})+'（識別：'+name+'）');
+   else cloudStat('⚠ 雲端同步失敗（填答已存於本機）',true);})
+  .catch(function(){cloudStat('⚠ 雲端同步失敗（填答已存於本機）',true);});
+}
+function countDone(ans){return Object.keys(ans||{}).filter(k=>{const a=ans[k];return a&&a.imp&&a.fea&&a.lvl;}).length;}
+function cloudCheck(name,opts){
+ opts=opts||{};
+ if(!name||name.length<2)return;
+ fetch(WEBAPP_URL+'?action=loadDraft&code='+encodeURIComponent(name.toUpperCase()))
+  .then(r=>r.json())
+  .then(j=>{
+   if(!(j&&j.ok&&j.state)){
+    if(opts.manual)alert('雲端沒有「'+name+'」的進度紀錄。\n請確認姓名輸入與先前填答時一致（含大小寫與空格）。');
+    return;}
+   const cloudTs=j.state.ts?new Date(j.state.ts).getTime():0;
+   const localTs=LAST_TS?new Date(LAST_TS).getTime():0;
+   const localDone=countDone(ANSWERS),cloudDone=countDone(j.state.answers);
+   if(localDone===0&&Object.keys(ANSWERS).length===0&&cloudDone>=0&&j.state.answers&&Object.keys(j.state.answers).length>0){
+    applyState(j.state,'雲端');saveState();
+    cloudStat('☁ 已自動載入您在雲端的進度（已完成 '+cloudDone+'／'+IND.length+' 項）');
+   }else if(cloudTs>localTs+1500){
+    if(confirm('偵測到雲端有較新的進度（可能來自另一台裝置，已完成 '+cloudDone+'／'+IND.length+' 項）。\n要載入雲端版本嗎？\n（按取消則保留目前這台裝置的內容，並以此為準繼續同步）')){
+     applyState(j.state,'雲端');saveState();
+    }
+   }else if(opts.manual){
+    if(confirm('雲端進度（已完成 '+cloudDone+' 欄）並不比目前畫面（'+localDone+' 欄）新。\n仍要用雲端版本覆蓋現在的內容嗎？')){
+     applyState(j.state,'雲端');saveState();
+    }
+   }
+  })
+  .catch(function(){if(opts.manual)alert('無法連線雲端服務，請稍後再試。填答仍會自動保存在此瀏覽器。');});
+}
+function onNameBlur(){
+ const name=normName();
+ if(name.length<2||name===lastCheckedName)return;
+ lastCheckedName=name;
+ cloudCheck(name,{});
+ scheduleCloudSave();
+}
+function manualCloudRestore(){
+ let name=normName();
+ if(name.length<2){
+  name=(prompt('請輸入您先前填答時使用的姓名（即雲端識別碼）')||'').trim();
+  if(name.length<2)return;
+  const el=document.getElementById('r_name');if(el)el.value=name;
+ }
+ cloudCheck(name,{manual:true});
+}
+/* 關閉或切換分頁前，盡力補送最後一次雲端同步 */
+document.addEventListener('visibilitychange',function(){
+ if(document.visibilityState==='hidden')cloudSave(true);
+});
+function fAns(code){
+ const a=ANSWERS[code]||{};
+ return [a.imp||'',a.fea||'',a.lvl||'',a.cmt||''];
+}
+function updateProgress(){
+ let done=0;
+ IND.forEach(ind=>{const a=fAns(ind.id);const ok=a[0]&&a[1]&&a[2];if(ok)done++;
+  const card=document.getElementById('card-'+ind.id);if(card)card.classList.toggle('done',!!ok);
+  const st=document.getElementById('istat-'+ind.id);if(st){st.textContent=ok?'✓ 已評':'未評';st.className='fstat'+(ok?' ok':'');}});
+ const el=document.getElementById('progress');
+ if(el)el.textContent='已完成 '+done+'／'+IND.length+' 項';
+ return done;
+}
+function val(id){const e=document.getElementById(id);return e?e.value:'';}
+function collectPayload(){
+ const info={name:val('r_name'),org:val('r_org'),field:val('r_field'),year:val('r_year')};
+ const rows=[];
+ IND.forEach(ind=>{const a=fAns(ind.id);
+  rows.push(['第'+ind.ch+'章',ind.id,ind.name,a[0],a[1],a[2],a[3]]);});
+ const opens={};
+ OPEN_QS.forEach(q=>{opens[q[1]]=OPENS[q[0]]||'';});
+ /* 章末建議（僅非空白者），以動態欄位併入「整體意見」表 */
+ Object.keys(CHSUG).forEach(ch=>{
+  if((CHSUG[ch]||'').trim())opens['建議新增｜'+(ch==='extra'?'其他補充':'第'+ch+'章 '+CHNAME[ch])]=CHSUG[ch].trim();
+ });
+ return {info:info,rows:rows,opens:opens};
+}
+const WEBAPP_URL="https://script.google.com/macros/s/AKfycby4obaBLYPQ9pmASSZw-xkO50cJvSjjlsKYHUgMlzcSv5YxVWA5sDFxwlmiv3hixhXF/exec";
+function submitOnline(){
+ const p=collectPayload();
+ const done=p.rows.filter(r=>r[3]&&r[4]&&r[5]).length;
+ if(!p.info.name){if(!confirm('尚未填寫姓名，仍要送出嗎？'))return;}
+ if(done<p.rows.length){if(!confirm('目前僅完成 '+done+'／'+p.rows.length+' 項。仍要送出嗎？'))return;}
+ document.querySelectorAll('.qtoolbar button').forEach(b=>b.disabled=true);
+ fetch(WEBAPP_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(p)})
+  .then(function(){document.querySelectorAll('.qtoolbar button').forEach(b=>b.disabled=false);alert('已成功送出！');})
+  .catch(function(err){document.querySelectorAll('.qtoolbar button').forEach(b=>b.disabled=false);alert('送出失敗：'+err);});
+}
+function csvCell(v){v=(v==null?'':(''+v)).replace(/"/g,'""');return '"'+v+'"';}
+function exportCSV(){
+ let rows=[];
+ rows.push(['台灣創傷登錄 Delphi — 產出對應版問卷 填答結果']);
+ rows.push(['填答者',val('r_name')]);
+ rows.push(['單位',val('r_org')]);
+ rows.push(['匯出時間',new Date().toLocaleString('zh-TW')]);
+ rows.push([]);
+ rows.push(['章節','編號','年報產出項目','重要性(1-7)','可行性(1-7)','呈現層級','意見']);
+ IND.forEach(ind=>{const a=fAns(ind.id);rows.push(['第'+ind.ch+'章',ind.id,ind.name,a[0],a[1],a[2],a[3]]);});
+ rows.push([]);
+ OPEN_QS.forEach(q=>{rows.push([q[1],OPENS[q[0]]||'']);});
+ Object.keys(CHSUG).forEach(ch=>{if((CHSUG[ch]||'').trim())rows.push(['建議新增｜'+(ch==='extra'?'其他補充':'第'+ch+'章 '+CHNAME[ch]),CHSUG[ch].trim()]);});
+ const csv=rows.map(r=>r.map(csvCell).join(',')).join('\r\n');
+ const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'});
+ const url=URL.createObjectURL(blob);
+ const a=document.createElement('a');
+ a.href=url;a.download='創傷登錄_產出對應版_'+(val('r_name')||'填答')+'.csv';
+ document.body.appendChild(a);a.click();URL.revokeObjectURL(url);
+}
+function clearAllAnswers(){
+ if(!confirm('確定要清空所有填答內容與個人資料嗎？此動作將一併清空本機與雲端儲存的進度，無法復原。'))return;
+ const nameBefore=normName();
+ if(nameBefore.length>=2){ /* 雲端草稿也一併清空，避免重填時舊進度又跑回來 */
+  try{fetch(WEBAPP_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},
+   body:JSON.stringify({action:'saveDraft',code:nameBefore,state:{info:{},answers:{},opens:{},ts:new Date().toISOString()}})});}catch(e){}
+ }
+ LAST_TS=null;lastCheckedName='';
+ Object.keys(ANSWERS).forEach(k=>delete ANSWERS[k]);
+ Object.keys(OPENS).forEach(k=>delete OPENS[k]);
+ Object.keys(CHSUG).forEach(k=>delete CHSUG[k]);
+ document.querySelectorAll('#viewA textarea.cmt').forEach(t=>t.value='');
+ document.querySelectorAll('.respondent-grid input').forEach(i=>i.value='');
+ try{localStorage.removeItem(STORAGE_KEY);}catch(e){}
+ const box=document.getElementById('saveinfo');if(box)box.style.display='none';
+ const st=document.getElementById('savestat');if(st)st.textContent='';
+ updateProgress();
+}
+
+renderA();renderB();loadState();updateProgress();
+</script>
+</body>
+</html>
