@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>台灣創傷登錄 Delphi 115-2314-B-227-001 國科會 主持人 張育通</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FAFAF6; --paper:#FFFFFF; --ink:#20241F; --muted:#6B726B; --line:#E1E0D8;
+    --red:#B8402F; --amber:#C4881F; --green:#3A7A5C; --slate:#2C3B3E; --slate-tint:#EEF2F1; --blue:#2C6E8F;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:'Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif;line-height:1.7;scroll-behavior:smooth;}
+  .wrap{max-width:900px;margin:0 auto;padding:44px 24px 120px;}
+
+  header.hero{border-bottom:2px solid var(--slate);padding-bottom:24px;margin-bottom:28px;}
+  header.hero .eyebrow{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;}
+  header.hero h1{font-family:'Noto Serif TC',serif;font-size:27px;margin:10px 0 14px;}
+  header.hero p{color:#3A403C;font-size:14.5px;max-width:800px;margin:0 0 12px;}
+
+  .internal-banner{background:#EBF8FF;border:1px dashed var(--blue);border-radius:8px;padding:12px 16px;margin:0 0 24px;font-size:13px;color:#2C5282;}
+  .internal-banner b{color:var(--blue);}
+
+  .toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:28px;position:sticky;top:0;background:var(--bg);padding:12px 0;z-index:20;border-bottom:1px solid var(--line);}
+  button.tool{font-family:'Noto Sans TC',sans-serif;font-size:13px;background:var(--slate);color:#fff;border:none;padding:9px 16px;border-radius:20px;cursor:pointer;}
+  button.tool.secondary{background:#fff;color:var(--slate);border:1px solid var(--slate);}
+  button.tool.danger{background:#fff;color:var(--red);border:1px solid var(--red);}
+  button.tool:hover{opacity:.85;}
+  .progress{margin-left:auto;font-size:12.5px;color:var(--muted);align-self:center;font-family:'JetBrains Mono',monospace;}
+
+  section.info{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:20px 24px;margin-bottom:22px;}
+  section.info h2{font-family:'Noto Serif TC',serif;font-size:17px;margin:0 0 12px;}
+  section.info ul{margin:0;padding-left:20px;font-size:14px;}
+  section.info li{margin-bottom:7px;}
+  .respondent-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 18px;}
+  .respondent-grid label{font-size:12.5px;color:var(--muted);display:block;margin-bottom:4px;}
+  .respondent-grid input{width:100%;border:1px solid var(--line);border-radius:6px;padding:8px 10px;font-size:14px;font-family:inherit;background:#FDFDFB;}
+
+  .scaleguide{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-top:6px;}
+  .scaleguide .sg{background:var(--slate-tint);border-radius:8px;padding:12px 14px;font-size:13px;}
+  .scaleguide .sg b{display:block;margin-bottom:4px;color:var(--slate);}
+
+  h2.cat-title{font-family:'Noto Serif TC',serif;font-size:20px;margin:38px 0 4px;display:flex;align-items:center;gap:10px;}
+  h2.cat-title .badge{font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--slate);color:#fff;padding:3px 9px;border-radius:4px;}
+  .cat-sub{color:var(--muted);font-size:13px;margin:0 0 14px;padding-bottom:8px;border-bottom:1px dashed var(--line);}
+
+  .field{background:var(--paper);border:1px solid var(--line);border-left:5px solid var(--slate);border-radius:8px;padding:16px 20px;margin-bottom:14px;}
+  
+  .field .fhead{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:3px;}
+  .field .code{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:13px;color:var(--slate);}
+  .field .fname{font-size:15.5px;font-weight:700;}
+
+  .field .fdesc{font-size:13.5px;color:#3A403C;margin:4px 0 12px; background:#F7FAFC; padding:10px 14px; border-radius:4px; border-left:3px solid var(--slate);}
+
+  .scalerow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px;}
+  .scalerow .slabel{font-size:12.5px;font-weight:700;min-width:64px;color:var(--slate);}
+  .radios{display:flex;gap:3px;flex-wrap:wrap;}
+  .radios label{position:relative;cursor:pointer;}
+  .radios input{position:absolute;opacity:0;width:0;height:0;}
+  .radios .box{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border:1px solid var(--line);border-radius:6px;font-size:13px;font-family:'JetBrains Mono',monospace;background:#fff;color:#555;}
+  .radios label.na .box{width:auto;padding:0 8px;font-size:12px;}
+  .radios input:checked + .box{color:#fff;border-color:transparent;font-weight:700;}
+  .imp input:checked + .box{background:var(--slate);}
+  
+  .yn .box{width:auto;padding:0 14px;}
+  .yn input:checked + .box{background:var(--blue);color:#fff;}
+  
+  .radios input:focus-visible + .box{outline:2px solid var(--slate);outline-offset:1px;}
+  .anchor{font-size:11px;color:var(--muted);}
+  textarea.cmt{width:100%;min-height:44px;border:1px solid var(--line);border-radius:6px;padding:8px 10px;font-family:inherit;font-size:13px;background:#FDFDFB;resize:vertical;margin-top:6px;}
+  textarea.cmt:focus{outline:2px solid var(--slate);outline-offset:1px;}
+
+  .openq{background:var(--paper);border:1px solid var(--line);border-left:5px solid var(--green);border-radius:8px;padding:16px 20px;margin-bottom:14px;}
+  .openq .qt{font-size:15px;font-weight:700;margin-bottom:4px;}
+  .openq .qh{font-size:12.5px;color:var(--muted);margin-bottom:10px;}
+  .openq textarea{width:100%;min-height:70px;border:1px solid var(--line);border-radius:6px;padding:10px 12px;font-family:inherit;font-size:14px;background:#FDFDFB;resize:vertical;}
+
+  .back-to-top {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: var(--slate);
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 45px;
+    height: 45px;
+    font-size: 18px;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    z-index: 99;
+    transition: opacity 0.3s;
+  }
+  .back-to-top:hover { background: var(--blue); }
+
+  @media(max-width:720px){
+    .respondent-grid{grid-template-columns:1fr;}
+    .scaleguide{grid-template-columns:1fr;}
+    .field .cov{margin-left:0;flex-basis:100%;}
+    .radios .box{width:28px;height:28px;}
+  }
+  @media print{
+    .toolbar, .back-to-top{display:none;}body{background:#fff;}
+    .field,.openq,section.info{break-inside:avoid;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap" id="top">
+  <header class="hero">
+    <span class="eyebrow">台灣創傷登錄標準化 · Delphi 共識研究 ·115-2314-B-227-001 國科會 主持人 張育通</span>
+    <h1>創傷登錄候選欄位 — 專家共識問卷</h1>
+    <p><b>本計畫期盼匯聚臨床醫療、公衛、資訊與救護等跨領域專家與實務工作者的共識，將『創傷登錄年報』轉化為深具價值的醫療公共財。透過多元意見的融合與數據共享，我們致力於建立以實證為基礎的決策支援體系，並結合人工智慧技術與空間地理資訊分析，精準對焦事故熱點與資源可近性，不僅全面優化第一線創傷照護網絡的品質，更能為未來的區域公共衛生與緊急醫療政策規劃，提供最具說服力與前瞻性的堅實後盾。</b></p>
+    <p>感謝您參與本研究。本輪問卷包含所有候選欄位清單，請仔細閱讀下方各欄位之<b>操作型定義與說明</b>後，以 <b>7 點量表評分「重要性」與「可行性」</b>，並勾選該欄位應為<b>「必要」或「選配」</b>。</p>
+  </header>
+
+  <div class="internal-banner">
+    <b>【內部團隊審閱註記】</b><br>
+    已依據最新指示完成全題庫編號重新梳理、刪除 A01b、新增 ISS/NISS、調整各項文字細節與操作型定義。
+  </div>
+
+  <div class="toolbar">
+    <button class="tool" onclick="submitOnline()">送出至團隊（線上回收）</button>
+    <button class="tool secondary" onclick="exportCSV()">下載填答結果（CSV）</button>
+    <button class="tool secondary" onclick="window.print()">列印本頁</button>
+    <button class="tool danger" onclick="clearAllAnswers()">清空所有填答</button>
+    <span class="progress" id="progress">已完成 0 欄</span>
+  </div>
+
+  <section class="info">
+    <h2>填答者基本資料</h2>
+    <div class="respondent-grid">
+      <div><label>姓名（可用代號）</label><input id="r_name" type="text"></div>
+      <div><label>服務單位／職稱</label><input id="r_org" type="text"></div>
+      <div><label>專長領域</label><input id="r_field" type="text"></div>
+      <div><label>創傷相關年資（年）</label><input id="r_year" type="text"></div>
+    </div>
+  </section>
+
+  <section class="info">
+    <h2>填答說明</h2>
+    <div class="scaleguide">
+      <div class="sg"><b>① 重要性（1–7 點）</b><br>此欄位對於評估創傷照護品質、預後或研究的重要程度。</div>
+      <div class="sg"><b>② 可行性（1–7 點）</b><br>實務上由登錄師收集、閱讀病歷或系統自動拋轉的難易度。</div>
+      <div class="sg"><b>③ 登錄層級（必要/選配）</b><br>依據現況與對接國際需求，建議此欄位應列為核心必填或進階選配。</div>
+    </div>
+  </section>
+
+  <div id="form"></div>
+
+  <h2 class="cat-title"><span class="badge">開放</span>總結與實務意見</h2>
+  <div id="openblock"></div>
+
+</div>
+
+<!-- 回到頂端懸浮按鈕 -->
+<button class="back-to-top" id="backToTopBtn" onclick="scrollToTop()" title="回到頂端">▲</button>
+
+<script>
+// 完整順過編號與修改條件的題庫
+const FIELDS = [
+ ["A","事故與空間資訊","事件發生的時間、地點與機制",[
+  ["A01","到院方式","<b>【定義】</b> 病患抵達本院急診的方式。<br><b>【說明】</b> 分流為「119救護車／自行前來／他院轉入」，作為解釋後續院前 119 資料為何呈現空白的關鍵前置欄位。"],
+  ["A02","事故發生日期","<b>【定義】</b> 創傷事件發生的具體日期（年/月/日）。<br><b>【說明】</b> 以 119 救護紀錄表時間。"],
+  ["A03","事故地點 GPS 座標","<b>【定義】</b> 事故現場的精確經緯度數值。<br><b>【說明】</b> 配合到院方式分流，限 119 送達者填寫或拋轉，非119者以事故地點地址作為資料。供 GIS 空間分析與救護可近性評估。"],
+  ["A04","事故地點地址","<b>【定義】</b> 事故現場的文字描述地址。<br><b>【說明】</b> 補足系統未完全介接 GPS 時，救護 PDF 表單上僅有文字地址的實務現況。"],
+  ["A05","事故地點行政區","<b>【定義】</b> 事故發生所在的縣市與鄉鎮市區。<br><b>【說明】</b> 為區域流行病學、事故熱點與資源分佈空間分析的基礎欄位。"],
+  ["A06","事故發生場所類型","<b>【定義】</b> 事故發生的環境或場所分類。<br><b>【說明】</b> 依 ICD 規範進行場所分類（如：道路、住家、工廠、學校、農田等）。"],
+  ["A07","傷害機制（ICD-10 外因碼）","<b>【定義】</b> 造成本次傷害的外部原因標準編碼。<br><b>【說明】</b> 記錄如 V碼(車禍)、W碼(跌倒/墜落) 等，為國際外傷登錄系統的核心分類標準。"],
+  ["A08","交通事故傷患身份","<b>【定義】</b> 標記傷者在交通事故中的角色（如：汽車駕駛、機車乘客、行人等）。<br><b>【說明】</b> 實務上自動轉碼準確率有限且急診出院無此碼，需由人工於前端確實填寫。也可用ICD-10帶入。"],
+  ["A09","安全防護設備使用","<b>【定義】</b> 事故當下病患是否使用防護裝備。<br><b>【說明】</b> 記錄是否使用安全帶、安全帽、兒童安全座椅或安全氣囊等防護設施。"],
+  ["A10","傷害意圖","<b>【定義】</b> 造成傷害的主觀意圖分類。<br><b>【說明】</b> 分類包含：意外、蓄意自傷、蓄意他傷、判定未明等。"],
+  ["A11","是否為職業傷害","<b>【定義】</b> 事故是否與執行職務或上下班通勤相關。<br><b>【說明】</b> 由登錄師依據急診病歷主訴判斷並註記，供後續勞保或職安分析參考。"]
+ ]],
+ ["B","院前資訊","EMS 救護時序與處置",[
+  ["B01","院前救護案號 (TEMSIS ID)","<b>【定義】</b> 消防局電子救護紀錄表上的案件編號。<br><b>【說明】</b> 未來系統串接「到院前 119 資料」與「醫院急診病歷」的唯一金鑰 (Primary Key)，直接影響自動化程度。"],
+  ["B02","民眾報案時間（119 接獲）","<b>【定義】</b> 119 勤務中心接獲民眾報案的確實時間。<br><b>【說明】</b> 以 119 實際可提供者為準，為系統反應時間軸的起點。"],
+  ["B03","EMS 派遣時間","<b>【定義】</b> 119 指揮中心派遣救護車輛出勤的確實時間。<br><b>【說明】</b> 用於評估勤務中心之派遣效率。"],
+  ["B04","EMS 到達現場時間","<b>【定義】</b> 救護人員抵達事故現場的確實時間。<br><b>【說明】</b> 評估救護車輛出勤至到場的反應時間。"],
+  ["B05","EMS 離開現場時間","<b>【定義】</b> 救護車輛離開現場、開始送醫的確實時間。<br><b>【說明】</b> 搭配 B04 可計算出「現場停留時間 (Scene time)」，評估現場處置效率。"],
+  ["B06","到達急診時間","<b>【定義】</b> 病患實體抵達本院急診室的確實時間。<br><b>【說明】</b> 串接院前與院內時序的核心時間點。"],
+  ["B07","院前 GCS（E／V／M）","<b>【定義】</b> 救護人員在現場評估的昏迷指數。<br><b>【說明】</b> 包含睜眼(E)、語音(V)、運動(M)三個細項，反映到院前的神經與意識狀態。"],
+  ["B08","院前收縮壓（SBP）","<b>【定義】</b> 救護人員在現場量測的收縮壓。<br><b>【說明】</b> 到院前休克與生命徵象不穩定的重要評估指標。"],
+  ["B09","院前呼吸速率","<b>【定義】</b> 救護人員在現場量測的每分鐘呼吸次數。"],
+  ["B10","院前心跳速率","<b>【定義】</b> 救護人員在現場量測的每分鐘脈搏或心跳次數。"],
+  ["B11","院前 SpO₂","<b>【定義】</b> 救護人員在現場量測的血氧飽和度百分比。<br><b>【說明】</b> 包含當下是否已給予氧氣治療。"],
+  ["B12","院前進階呼吸道","<b>【定義】</b> 病患在到院前是否接受進階呼吸道處置。<br><b>【說明】</b> 包含氣管內管插管或聲門上呼吸道 (SGA) 之置入。"],
+  ["B13","院前靜脈輸液","<b>【定義】</b> 病患在到院前是否接受靜脈管路 (IV) 建立與輸液給予。"],
+  ["B14","止血帶使用","<b>【定義】</b> 病患在到院前是否被使用止血帶進行大出血控制。<br><b>【說明】</b> 評估外傷處置品質的重要指標。"],
+  ["B15","止血帶綁上時間","<b>【定義】</b> 院前救護人員綁上止血帶的確切時間。<br><b>【說明】</b> 搭配止血帶使用欄位，綁縛時間過長將導致肢體壞死，為評估後續截肢風險之關鍵指標。"],
+  ["B16","止血帶卸除時間","<b>【定義】</b> 到院後由醫護人員卸除止血帶的確切時間。<br><b>【說明】</b> 用於計算止血帶總留置時間。"],
+  ["B17","是否為直升機救護（HEMS）","<b>【定義】</b> 病患是否經由航空器或直升機進行醫療後送。"],
+  ["B18","院前心跳停止","<b>【定義】</b> 病患在抵達醫院前是否曾發生心肺功能停止 (OHCA)。<br><b>【說明】</b> 對預後有決定性影響（若是院前心跳停止應含CPR時間）。"],
+  ["B19","第一線救護員層級","<b>【定義】</b> 現場提供處置的最高層級救護人員。<br><b>【說明】</b> 台灣為三級制 (EMT-1 / EMT-2 / EMTP)，供院前救護品質分析。"],
+  ["B20","EMS 目的地合規性","<b>【定義】</b> 救護車後送目的地是否符合當地衛生局的創傷分流指引。<br><b>【說明】</b> 需高度依賴系統資訊拋轉判斷，就近適當（急診分流）指揮中心指示 傷病患或家屬要求。"]
+ ]] ,
+ ["C","病人基本資料","人口學與共病背景",[
+  ["C01","出生年月日","<b>【定義】</b> 病患真實的出生日期。<br><b>【說明】</b> 採生日收集，病患實際年齡由系統後台自動推算，避免人工計算誤差。"],
+  ["C02","性別（出生時生理性別）","<b>【定義】</b> 病患出生時的生理性別。"],
+  ["C03","保險狀態／健保類別","<b>【定義】</b> 病患就醫時的醫療保險身分（如：健保、自費、勞保等）。"],
+  ["C04","主要共病 (既有疾病)","<b>【定義】</b> 病患在本次受傷前已具備的慢性疾病（如糖尿病、高血壓）。<br><b>【說明】</b> 若依賴系統自動撈取 HIS 的 ICD 碼，可能無法區分過去病史與本次新診斷。"]
+]],
+ ["D","傷害評估","嚴重度分數與急診處置",[
+  ["D01","AIS (台灣健保 6 部位版)","<b>【定義】</b> 各解剖部位的簡明創傷分數 (Abbreviated Injury Scale)。<br><b>【說明】</b> 對齊台灣現行健保申報的 6 部位格式，以統一全國各院後續 ISS 總分的計算基準。"],
+  ["D02","ISS（傷害嚴重度分數）","<b>【定義】</b> 全身傷害嚴重度總分 (Injury Severity Score)。<br><b>【說明】</b> 依 AIS 各部位最高平方和計算，重大創傷 (ISS>12) 之核心評估指標。"],
+  ["D03","NISS（新傷害嚴重度分數）","<b>【定義】</b> 新傷害嚴重度分數 (New Injury Severity Score)。<br><b>【說明】</b> 取身體任一嚴重受傷部位的前三個最高 AIS 分數平方和計算，對穿透性外傷預測較佳。"],
+  ["D04","ICD-10 傷害診斷碼","<b>【定義】</b> 病歷上所記載的 ICD-10 創傷與診斷詳細編碼。<br><b>【說明】</b> 健保申報資料已含，為描述具體傷勢的國際標準。"],
+  ["D05","傷害類型（鈍傷／穿透／燒傷）","<b>【定義】</b> 創傷的基本機轉大類別（鈍器傷、穿透傷或燒燙傷）。"],
+  ["D06","到院時 GCS（E／V／M）","<b>【定義】</b> 病患抵達急診時，由醫療人員評估的初步昏迷指數。<br><b>【說明】</b> 包含 E, V, M 三個細項。"],
+  ["D07","到院時收縮壓","<b>【定義】</b> 病患抵達急診時量測的首次收縮壓 (SBP)。"],
+  ["D08","到院時呼吸速率","<b>【定義】</b> 病患抵達急診時量測的首次呼吸次數。"],
+  ["D09","到院時心跳速率","<b>【定義】</b> 病患抵達急診時量測的首次脈搏/心跳次數。"],
+  ["D10","到院時體溫","<b>【定義】</b> 病患抵達急診時量測的首次核心體溫。<br><b>【說明】</b> 用於評估創傷死亡三角之一的「低體溫」。"],
+  ["D11","外傷小組啟動","<b>【定義】</b> 急診是否因病患傷勢達標而啟動院內外傷小組機制。<br><b>【說明】</b> 依台灣臨床與醫院評鑑慣用語（原稱創傷活化層級）正名。"],
+  ["D12","燒傷面積（%TBSA）","<b>【定義】</b> 若為燒傷病患，其二度及三度燒傷佔全身體表面積的總百分比。"]
+]],
+ ["E","院內照護","手術、加護與呼吸處置",[
+  ["E01","到院後手術 (急診首次外傷手術)","<b>【定義】</b> 病患因本次創傷接受的第一次手術處置及術式碼。<br><b>【說明】</b> 僅追蹤急診首次手術，不強求追蹤住院期間所有重建手術，以減輕登錄負擔。"],
+  ["E02","外傷小組醫師到達時間","<b>【定義】</b> 啟動外傷小組後，專責醫師實際抵達病患床邊的時間。<br><b>【說明】</b> 用於評估急診醫療團隊的反應時效。"],
+  ["E03","ICU 入住（是否／天數）","<b>【定義】</b> 病患住院期間是否曾轉入加護病房照護，及入住總天數。"],
+  ["E04","呼吸器使用天數","<b>【定義】</b> 病患住院期間插管並使用侵入性呼吸器輔助的總天數。"],
+  ["E05","輸血（PRBC等）","<b>【定義】</b> 病患急診或住院期間接受各類血品（如紅血球濃厚液）的輸注總量。"],
+  ["E06","血管攝影（栓塞治療）","<b>【定義】</b> 病患是否接受介入性血管攝影及動脈栓塞止血術。"],
+  ["E07","壓瘡","<b>【定義】</b> 病患住院期間是否發生新的壓瘡（護理照護品質指標）。"],
+  ["E08","是否轉院（及轉院時間）","<b>【定義】</b> 病患後續是否因需更進階醫療處置或是其他原因而轉往他院，及實際離院時間。"],
+  ["E09","撤除生命維持","<b>【定義】</b> 病患或家屬是否簽署同意並實際執行撤除維生醫療設備（如拔管）。"],
+  ["E10","是否有 DNR (不施行心肺復甦術)","<b>【定義】</b> 病患在院期間是否簽署或具備 DNR 意願。<br><b>【說明】</b> 會直接影響醫療處置積極度，為評估存活率與死亡率校正之必備指標。"]
+]],
+ ["F","結果指標","住院天數與功能預後",[
+  ["F01","院內死亡","<b>【定義】</b> 病患是否於本次急診或住院照護期間內宣告死亡（最核心結果指標）。"],
+  ["F02","住院天數（總住院／ICU）","<b>【定義】</b> 病患從入院到出院的總住院天數（醫療資源消耗與效率指標）。"],
+  ["F03","出院去向","<b>【定義】</b> 病患離院時的流向（如：返家、轉至長照機構、病危自動出院等）。"],
+  ["F04","出院功能狀態（GOS-E）","<b>【定義】</b> 使用格拉斯哥預後量表擴充版 (GOS-E) 評估出院時的功能狀態。"],
+  ["F05","兒科功能預後（KOSCHI）","<b>【定義】</b> 針對兒科病患專用的功能與神經預後評分工具。"],
+  ["F06","6／12／24 個月功能預後（EQ-5D-5L）","<b>【定義】</b> 病患出院後長期追蹤的生活品質問卷分數。"]
+]],
+ ["G","系統與轉院資訊","台灣特有資料",[
+  ["G01","健保投保類別","<b>【定義】</b> 病患的健保投保身分類別（如第一類至第六類，作為社經地位代理指標）。"],
+  ["G02","救護員執照層級（EMT-1／2／P）","<b>【定義】</b> 台灣特有三級制，記錄負責處置之救護員最高層級。"],
+  ["G03","到院前檢傷級數","<b>【定義】</b> 119 救護人員在現場評估的緊急程度檢傷分級（原稱119派遣類別）。"],
+  ["G04","轉診醫療院所代碼","<b>【定義】</b> 記錄將病患轉診過來的來源醫院健保代碼。<br><b>【說明】</b> 改收醫院代碼後由系統後台自動轉譯層級，提升正確率。"],
+  ["G05","目擊者 CPR","<b>【定義】</b> 若發生 OHCA，是否有旁人在 EMT 抵達前先進行心肺復甦術（對齊 Utstein 標準）。"],
+  ["G06","是否為離島（金馬澎）","<b>【定義】</b> 事故地點是否位於台灣離島（因牽涉跨海後送與特殊的救護時效考量）。"]
+]]
+];
+
+const OPEN_QS = [
+ ["q1","收案範圍確認","針對本次會議確認之收案範圍：「因急性創傷住院、急診轉院、急診死亡之個案」，是否有其他補充？",""],
+ ["q2","實務障礙說明","若您對上述任一欄位給予「可行性 1-3 分」，請簡述其在貴院實務推動上的最大障礙。","例：本院資訊系統無法拋轉、急診第一線無暇詢問等。"]
+];
+
+function buildRadios(prefix,cls){
+  let h='<div class="radios '+cls+'">';
+  for(let i=1;i<=7;i++){
+    h+='<label><input type="radio" name="'+prefix+'" value="'+i+'"><span class="box">'+i+'</span></label>';
+  }
+  h+='</div>';
+  return h;
+}
+
+let html='';
+let totalFields = 0;
+FIELDS.forEach(cat=>{
+  const [letter,title,sub,items]=cat;
+  totalFields += items.length;
+  html+='<h2 class="cat-title"><span class="badge">'+letter+'</span>'+title+'</h2>';
+  html+='<p class="cat-sub">'+sub+'</p>';
+  items.forEach(f=>{
+    const [code,name,desc]=f;
+    html+='<div class="field" data-code="'+code+'">';
+    html+='<div class="fhead"><span class="code">'+code+'</span><span class="fname">'+name+'</span>';
+    html+='</div>';
+    
+    html+='<div class="fdesc">'+desc+'</div>';
+    
+    html+='<div class="scalerow"><span class="slabel">重要性</span>'+buildRadios('imp_'+code,'imp')+'<span class="anchor">1 極低 → 7 極高</span></div>';
+    html+='<div class="scalerow"><span class="slabel">可行性</span>'+buildRadios('fea_'+code,'imp')+'<span class="anchor">1 極難 → 7 極易</span></div>';
+    
+    html+='<div class="scalerow"><span class="slabel">登錄層級</span>';
+    html+='<div class="radios yn">';
+    html+='<label><input type="radio" name="lvl_'+code+'" value="必要"><span class="box">必要</span></label>';
+    html+='<label><input type="radio" name="lvl_'+code+'" value="選配"><span class="box">選配</span></label>';
+    html+='</div><span class="anchor">建議列為核心必填或進階選配</span></div>';
+
+    html+='<textarea class="cmt" data-code="'+code+'" placeholder="補充意見（選填）"></textarea>';
+    html+='</div>';
+  });
+});
+document.getElementById('form').innerHTML=html;
+
+let openHtml='';
+OPEN_QS.forEach(q=>{
+  const [id,label,qt,qh]=q;
+  openHtml+='<div class="openq"><div class="qt">'+label+'</div><div class="qt" style="font-weight:500;font-size:14px">'+qt+'</div>';
+  if(qh) openHtml+='<div class="qh">'+qh+'</div>';
+  openHtml+='<textarea id="open_'+id+'"></textarea></div>';
+});
+document.getElementById('openblock').innerHTML=openHtml;
+
+document.getElementById('progress').textContent='已完成 0／'+totalFields+' 欄';
+
+function updateProgress(){
+  const fields=document.querySelectorAll('.field');
+  let done=0;
+  fields.forEach(fd=>{
+    const code=fd.getAttribute('data-code');
+    const imp=document.querySelector('input[name="imp_'+code+'"]:checked');
+    const fea=document.querySelector('input[name="fea_'+code+'"]:checked');
+    const lvl=document.querySelector('input[name="lvl_'+code+'"]:checked');
+    if(imp && fea && lvl) done++;
+  });
+  document.getElementById('progress').textContent='已完成 '+done+'／'+totalFields+' 欄';
+}
+document.getElementById('form').addEventListener('change',updateProgress);
+
+function val(id){const e=document.getElementById(id);return e?e.value:'';}
+function collectPayload(){
+  const info={name:val('r_name'),org:val('r_org'),field:val('r_field'),year:val('r_year')};
+  const rows=[];
+  FIELDS.forEach(cat=>{const letter=cat[0];cat[3].forEach(f=>{
+    const code=f[0];
+    const imp=document.querySelector('input[name="imp_'+code+'"]:checked');
+    const fea=document.querySelector('input[name="fea_'+code+'"]:checked');
+    const lvl=document.querySelector('input[name="lvl_'+code+'"]:checked');
+    const cmt=document.querySelector('textarea.cmt[data-code="'+code+'"]');
+    rows.push([letter,code,f[1],imp?imp.value:'',fea?fea.value:'',lvl?lvl.value:'',cmt?cmt.value:'']);
+  });});
+  const opens={};OPEN_QS.forEach(q=>{const t=document.getElementById('open_'+q[0]);opens[q[1]]=t?t.value:'';});
+  return {info:info,rows:rows,opens:opens};
+}
+
+const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwAjKN92vd85bdF-K6K7miTYnBedXB2sn2dykGsnVDZz6T7KTd1lyU8Fys5R8o3hFozxw/exec";
+
+function setBusy(b){document.querySelectorAll('.toolbar button').forEach(x=>x.disabled=b);
+  const el=document.getElementById('progress'); if(b) el.textContent='送出中…';}
+
+function submitOnline(){
+  const p=collectPayload();
+  let done=p.rows.filter(r=>r[3]&&r[4]&&r[5]).length;
+  if(!p.info.name){ if(!confirm('尚未填寫姓名，仍要送出嗎？')) return; }
+  if(done<p.rows.length){ if(!confirm('目前僅完成 '+done+'／'+p.rows.length+' 欄。仍要送出嗎？')) return; }
+  setBusy(true);
+  fetch(WEBAPP_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(p)})
+    .then(function(){setBusy(false);updateProgress();alert('已成功送出第二輪問卷！');})
+    .catch(function(err){setBusy(false);updateProgress();alert('送出失敗：'+err);});
+}
+
+function csvCell(v){v=(v==null?'':(''+v)).replace(/"/g,'""');return '"'+v+'"';}
+function exportCSV(){
+  let rows=[];
+  rows.push(['台灣創傷登錄 Delphi 第二輪 — 填答結果']);
+  rows.push(['填答者',val('r_name')]);
+  rows.push(['單位',val('r_org')]);
+  rows.push(['匯出時間',new Date().toLocaleString('zh-TW')]);
+  rows.push([]);
+  rows.push(['類別','代碼','欄位','重要性(1-7)','可行性(1-7)','登錄層級','意見']);
+  FIELDS.forEach(cat=>{
+    cat[3].forEach(f=>{
+      const code=f[0];
+      const imp=document.querySelector('input[name="imp_'+code+'"]:checked');
+      const fea=document.querySelector('input[name="fea_'+code+'"]:checked');
+      const lvl=document.querySelector('input[name="lvl_'+code+'"]:checked');
+      const cmt=document.querySelector('textarea.cmt[data-code="'+code+'"]');
+      rows.push([cat[0],code,f[1],imp?imp.value:'',fea?fea.value:'',lvl?lvl.value:'',cmt?cmt.value:'']);
+    });
+  });
+  rows.push([]);
+  OPEN_QS.forEach(q=>{ rows.push([q[1],val('open_'+q[0])]); });
+  
+  const csv=rows.map(r=>r.map(csvCell).join(',')).join('\r\n');
+  const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;a.download='創傷登錄R2_'+(val('r_name')||'填答')+'.csv';
+  document.body.appendChild(a);a.click();URL.revokeObjectURL(url);
+}
+
+function clearAllAnswers(){
+  if(!confirm('確定要清空所有填答內容與個人資料嗎？此動作無法復原。')) return;
+  document.querySelectorAll('input[type=radio]').forEach(r=>r.checked=false);
+  document.querySelectorAll('textarea').forEach(t=>t.value='');
+  document.querySelectorAll('.respondent-grid input').forEach(i=>i.value='');
+  updateProgress();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+window.onscroll = function() {
+  const btn = document.getElementById("backToTopBtn");
+  if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+    btn.style.display = "flex";
+  } else {
+    btn.style.display = "none";
+  }
+};
+
+function scrollToTop() {
+  window.scrollTo({top: 0, behavior: 'smooth'});
+}
+</script>
+</body>
+</html>
