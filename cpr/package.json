@@ -1,0 +1,19 @@
+{
+  "name": "cpr-guardian",
+  "version": "0.2.0",
+  "description": "呼救 CPR — 用手機鏡頭協助辨識瀕死呼吸並引導 CPR 的 PWA",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "serve": "python3 -m http.server 8080 --bind 127.0.0.1",
+    "test": "node --test tests/detect.test.mjs",
+    "e2e:video": "python3 tests/make_fake_video.py normal tests/out/normal.y4m && python3 tests/make_fake_video.py none tests/out/none.y4m && python3 tests/make_fake_video.py agonal tests/out/agonal.y4m",
+    "e2e": "node tests/e2e.mjs normal tests/out/normal.y4m tests/out/shots-normal && node tests/e2e.mjs none tests/out/none.y4m tests/out/shots-none && node tests/e2e.mjs agonal tests/out/agonal.y4m tests/out/shots-agonal",
+    "icons": "python3 tools/make_icons.py",
+    "aed": "python3 tools/fetch_aed.py"
+  },
+  "devDependencies": {
+    "playwright": "^1.56.0"
+  },
+  "license": "MIT"
+}

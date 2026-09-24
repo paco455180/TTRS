@@ -1,0 +1,578 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#d32f2f" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#0f1114" media="(prefers-color-scheme: dark)" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="呼救CPR" />
+  <meta name="description" content="有人倒下沒有反應？用手機鏡頭協助判斷是否為瀕死呼吸，並立即引導撥打 119 與 CPR。" />
+  <title>呼救 CPR — 瀕死呼吸辨識與 CPR 引導</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" media="print" onload="this.media='all'" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+  <link rel="stylesheet" href="css/app.css" />
+</head>
+<body>
+<!-- ===== 圖示 ===== -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-phone" viewBox="0 0 24 24"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></symbol>
+  <symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s7-6.2 7-11a7 7 0 1 0-14 0c0 4.8 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></symbol>
+  <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-7-4.6-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.4-7 10-7 10z"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3 2 20h20L12 3z M12 10v4 M12 17h.01"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12l5 5 9-11"/></symbol>
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></symbol>
+  <symbol id="i-vol" viewBox="0 0 24 24"><path d="M4 10v4h4l5 4V6L8 10z M16 9a4 4 0 0 1 0 6 M19 6a8 8 0 0 1 0 12"/></symbol>
+  <symbol id="i-mute" viewBox="0 0 24 24"><path d="M4 10v4h4l5 4V6L8 10z M17 9l4 6 M21 9l-4 6"/></symbol>
+  <symbol id="i-torch" viewBox="0 0 24 24"><path d="M8 3h8v4l-2 3v11h-4V10L8 7z M12 13v3"/></symbol>
+  <symbol id="i-mic" viewBox="0 0 24 24"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3z M6 11a6 6 0 0 0 12 0 M12 17v4 M9 21h6"/></symbol>
+  <symbol id="i-gear" viewBox="0 0 24 24"><path d="M4 7h8 M18 7h2 M4 12h2 M12 12h8 M4 17h10 M20 17h0"/><circle cx="15" cy="7" r="2.2"/><circle cx="9" cy="12" r="2.2"/><circle cx="17" cy="17" r="2.2"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5 M12 8h.01"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.7 M20 4v5h-5"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+  <symbol id="i-hand" viewBox="0 0 24 24"><path d="M9 21H8a4 4 0 0 1-4-4v-5a2 2 0 0 1 4 0V8a2 2 0 0 1 4 0v3a2 2 0 0 1 4 0v2a2 2 0 0 1 4 0v4a4 4 0 0 1-4 4z"/></symbol>
+  <symbol id="i-wind" viewBox="0 0 24 24"><path d="M4 8h9a3 3 0 1 0-3-3 M4 12h14a3 3 0 1 1-3 3 M4 16h7a2 2 0 1 1-2 2"/></symbol>
+  <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></symbol>
+  <symbol id="i-person" viewBox="0 0 24 24"><circle cx="7" cy="8" r="2.5"/><path d="M3 19h18 M6 19v-3a3 3 0 0 1 3-3h9a3 3 0 0 1 3 3v3"/></symbol>
+  <symbol id="i-timer" viewBox="0 0 24 24"><path d="M12 8v5l3 2 M9 2h6 M12 5a8 8 0 1 0 0 16 8 8 0 0 0 0-16z"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12 M18 6 6 18"/></symbol>
+  <symbol id="i-next" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4l12 8-12 8z"/></symbol>
+  <symbol id="i-pause" viewBox="0 0 24 24"><path d="M7 5h4v14H7z M13 5h4v14h-4z"/></symbol>
+  <symbol id="i-nav" viewBox="0 0 24 24"><path d="M3 11l18-8-8 18-2-8z"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h6v18H6a2 2 0 0 0-2 2z M12 3h6a2 2 0 0 1 2 2v18a2 2 0 0 0-2-2h-6z"/></symbol>
+  <symbol id="i-practice" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 3v3 M12 18v3 M3 12h3 M18 12h3"/><circle cx="12" cy="12" r="2"/></symbol>
+  <symbol id="i-lungs" viewBox="0 0 24 24"><path d="M12 3v9 M12 12c-2 0-3 2-3 5v2a2 2 0 0 1-4 0v-6c0-3 3-6 7-6 M12 12c2 0 3 2 3 5v2a2 2 0 0 0 4 0v-6c0-3-3-6-7-6"/></symbol>
+</svg>
+
+<div id="app">
+
+  <!-- ===================== 首次使用導覽 ===================== -->
+  <section class="screen" data-screen="intro" hidden>
+    <header class="topbar">
+      <div class="brand"><svg class="logo" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="16" fill="#d32f2f"/><path d="M32 50s-16-9.5-16-21a8.5 8.5 0 0 1 16-4 8.5 8.5 0 0 1 16 4c0 11.5-16 21-16 21z" fill="#fff"/><path d="M18 31h7l3-6 4 12 3-6h11" fill="none" stroke="#d32f2f" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/></svg>呼救 CPR</div>
+      <button class="btn btn-ghost btn-sm" id="btnIntroSkip">略過</button>
+    </header>
+    <main class="content center">
+      <div class="intro-slide active" data-slide="0">
+        <svg class="intro-art" viewBox="0 0 300 200" aria-hidden="true">
+          <rect x="112" y="14" width="76" height="150" rx="14" fill="var(--phone)"/>
+          <rect x="118" y="24" width="64" height="130" rx="9" fill="var(--surface)"/>
+          <rect x="126" y="34" width="48" height="52" rx="5" fill="var(--surface-2)" stroke="var(--line)"/>
+          <rect x="134" y="44" width="32" height="30" rx="3" fill="none" stroke="var(--primary)" stroke-width="2" stroke-dasharray="4 3"/>
+          <path d="M128 100h8l4-8 5 16 4-8h17" fill="none" stroke="var(--primary)" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>
+          <rect x="128" y="118" width="44" height="14" rx="7" fill="var(--primary)"/>
+          <text x="150" y="128" font-size="8.5" text-anchor="middle" fill="#fff" font-weight="700">開始 CPR</text>
+          <g class="bubble-anim"><path d="M246 46c-10-18-40-10-40 8 0 18 40 40 40 40s40-22 40-40c0-18-30-26-40-8z" fill="var(--primary)" opacity=".92"/>
+          <path d="M214 66h12l6-12 8 24 6-12h16" fill="none" stroke="#fff" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/></g>
+          <circle cx="54" cy="70" r="26" fill="var(--call-soft)"/><path d="M45 60h6l3 7-3.5 2a12 12 0 0 0 6 6l2-3.5 7 3v5a2 2 0 0 1-2 2 18 18 0 0 1-21-21 2 2 0 0 1 2-2z" fill="var(--call)"/>
+          <text x="54" y="118" font-size="11" text-anchor="middle" fill="var(--muted)">一鍵 119</text>
+          <text x="150" y="184" font-size="11" text-anchor="middle" fill="var(--muted)">10 秒鏡頭判讀</text>
+          <text x="246" y="118" font-size="11" text-anchor="middle" fill="var(--muted)">節拍壓胸</text>
+        </svg>
+        <h1>有人倒下，<br>你可以救他</h1>
+        <p class="hero-sub">呼救 CPR 用手機鏡頭幫你判斷「有沒有正常呼吸」，然後一步一步帶你撥 119、壓胸、找 AED。</p>
+      </div>
+      <div class="intro-slide" data-slide="1">
+        <svg class="intro-art" viewBox="0 0 300 200" aria-hidden="true">
+          <rect x="0" y="150" width="300" height="6" fill="var(--floor)"/>
+          <ellipse cx="60" cy="130" rx="19" ry="17" fill="var(--skin)"/>
+          <rect x="78" y="116" width="120" height="34" rx="15" fill="var(--cloth)"/>
+          <rect x="194" y="122" width="90" height="26" rx="12" fill="var(--pants)"/>
+          <path d="M30 56h60l6-26 8 40 6-14h50" fill="none" stroke="var(--primary)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+          <path d="M176 56h26l5-7 5 7 5-7 5 7 5-7 5 7h34" fill="none" stroke="var(--line)" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+          <text x="95" y="94" font-size="11" text-anchor="middle" fill="var(--primary)" font-weight="700">突然喘一口，然後好幾秒不動</text>
+          <text x="222" y="94" font-size="11" text-anchor="middle" fill="var(--muted)">↔ 正常：規律連續</text>
+        </svg>
+        <h2>不確定，就當作沒有呼吸</h2>
+        <p class="hero-sub">心臟剛停止時，三到四成的人會出現「<strong>瀕死呼吸</strong>」：像魚離水般突然喘一口、有鼾聲，之後好幾秒不動。這<strong>不是</strong>呼吸，很多人因此錯過了救命時間。</p>
+        <div class="callout"><strong>沒有反應 ＋ 沒有「正常」呼吸 ＝ 立刻 CPR。</strong> 對有心跳的人做 CPR 傷害很小，不做才危險。</div>
+      </div>
+      <div class="intro-slide" data-slide="2">
+        <h2>現在先允許權限</h2>
+        <p class="hero-sub">緊急時就不用再點任何「允許」。所有影像與聲音都只在你的手機上分析，不儲存、不上傳。</p>
+        <ul class="perm-list">
+          <li><svg class="ic"><use href="#i-camera"/></svg>相機 — 看胸口起伏<span class="state" id="permCam">未設定</span></li>
+          <li><svg class="ic"><use href="#i-mic"/></svg>麥克風 — 聽喘息聲<span class="state" id="permMic">未設定</span></li>
+          <li><svg class="ic"><use href="#i-pin"/></svg>定位 — 告訴 119 位置、找 AED<span class="state" id="permLoc">未設定</span></li>
+        </ul>
+        <button class="btn btn-outline" id="btnGrantPerms"><svg class="ic"><use href="#i-check"/></svg>一次允許三項權限</button>
+        <label class="agree"><input type="checkbox" id="chkAgree" /><span>我了解本 app 是急救<strong>輔助</strong>工具，不能取代 119 接線員與醫療人員的判斷；不確定時我會直接開始 CPR。</span></label>
+      </div>
+      <div class="dots" id="introDots"><span class="on"></span><span></span><span></span></div>
+    </main>
+    <footer class="actions">
+      <button class="btn btn-primary btn-xl" id="btnIntroNext">下一步 <svg class="ic"><use href="#i-next"/></svg></button>
+      <button class="btn btn-danger-outline" id="btnIntroEmergency"><svg class="ic"><use href="#i-alert"/></svg>現在就有人倒下 → 直接開始</button>
+    </footer>
+  </section>
+
+  <!-- ===================== 首頁 ===================== -->
+  <section class="screen" data-screen="home">
+    <header class="topbar">
+      <div class="brand"><svg class="logo" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="16" fill="#d32f2f"/><path d="M32 50s-16-9.5-16-21a8.5 8.5 0 0 1 16-4 8.5 8.5 0 0 1 16 4c0 11.5-16 21-16 21z" fill="#fff"/><path d="M18 31h7l3-6 4 12 3-6h11" fill="none" stroke="#d32f2f" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/></svg>呼救 CPR</div>
+      <button class="icon-btn" data-nav="learn" aria-label="認識瀕死呼吸"><svg class="ic"><use href="#i-info"/></svg></button>
+      <button class="icon-btn" data-nav="settings" aria-label="設定"><svg class="ic"><use href="#i-gear"/></svg></button>
+    </header>
+    <main class="content center">
+      <div class="hero">
+        <div class="pulse-mark" aria-hidden="true"><svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="44" fill="var(--primary-soft)"/><path d="M60 88s-26-15.5-26-34a13.5 13.5 0 0 1 26-6.5A13.5 13.5 0 0 1 86 54c0 18.5-26 34-26 34z" fill="var(--primary)"/><path d="M38 56h12l4-9 6 20 5-11h17" fill="none" stroke="#fff" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/></svg></div>
+        <h1 class="hero-title">有人倒下、<br>叫不醒？</h1>
+        <p class="hero-sub">跟著做就對了。<br>不確定的時候，<strong>就當作沒有呼吸，開始 CPR</strong>。</p>
+      </div>
+      <button class="btn btn-primary btn-xl" data-nav="check-respond"><svg class="ic"><use href="#i-person"/></svg>開始檢查</button>
+      <div class="flow-hint"><b>1 叫</b>確認反應<b>2 看</b>檢查呼吸<b>3 壓</b>119 + CPR</div>
+      <div class="grid-2">
+        <button class="btn btn-danger-outline" data-nav="cpr?step=c"><svg class="ic"><use href="#i-hand"/></svg>直接開始 CPR</button>
+        <button class="btn btn-outline" data-nav="aed"><svg class="ic"><use href="#i-bolt"/></svg>附近 AED</button>
+        <button class="btn btn-outline" data-nav="check-breath?practice=1"><svg class="ic"><use href="#i-practice"/></svg>練習模式</button>
+        <button class="btn btn-outline" data-nav="learn"><svg class="ic"><use href="#i-book"/></svg>認識瀕死呼吸</button>
+      </div>
+      <a class="btn btn-call btn-xl home-call" href="tel:119"><svg class="ic"><use href="#i-phone"/></svg>撥打 119</a>
+    </main>
+    <footer class="foot-note">本 app 為急救輔助工具，不能取代 119 與專業醫療判斷。所有判讀以「寧可多做 CPR」為原則；影像與聲音只在手機上處理，不上傳。</footer>
+  </section>
+
+  <!-- ===================== 步驟 1：叫 ===================== -->
+  <section class="screen" data-screen="check-respond" hidden>
+    <header class="topbar">
+      <button class="icon-btn" data-nav="home" aria-label="返回"><svg class="ic"><use href="#i-back"/></svg></button>
+      <div class="title">確認反應<small>步驟 1／3</small></div>
+      <a class="btn btn-call btn-sm" href="tel:119"><svg class="ic"><use href="#i-phone"/></svg>119</a>
+    </header>
+    <div class="stepper" aria-hidden="true"><span class="now"></span><span></span><span></span></div>
+    <main class="content center">
+      <svg class="illus" viewBox="0 0 360 200" aria-hidden="true">
+        <rect x="0" y="158" width="360" height="6" rx="3" fill="var(--floor)"/>
+        <circle cx="58" cy="136" r="20" fill="var(--skin)"/>
+        <path d="M40 130q2-18 20-18t18 16q-8-6-18-4t-20 6z" fill="var(--hair)"/>
+        <rect x="76" y="121" width="140" height="37" rx="17" fill="var(--cloth)"/>
+        <rect x="212" y="128" width="112" height="28" rx="13" fill="var(--pants)"/>
+        <rect x="318" y="122" width="22" height="34" rx="8" fill="var(--hair)"/>
+        <path d="M290 62q-32 6-38 42l-10 54h48l6-44q6-28-6-52z" fill="var(--cloth2)"/>
+        <circle cx="300" cy="44" r="19" fill="var(--skin)"/>
+        <path d="M282 40q4-20 22-18t14 18q-8-7-18-4t-18 4z" fill="var(--hair)"/>
+        <path d="M284 78L128 118" stroke="var(--skin)" stroke-width="13" stroke-linecap="round"/>
+        <ellipse cx="120" cy="121" rx="13" ry="8" fill="var(--skin-dark)" transform="rotate(-18 120 121)"/>
+        <g fill="none" stroke="var(--primary)" stroke-width="3"><circle class="tap-ring" cx="112" cy="124" r="12"/><circle class="tap-ring" cx="112" cy="124" r="12" style="animation-delay:.65s"/></g>
+        <g class="bubble-anim"><rect x="176" y="8" width="160" height="46" rx="14" fill="var(--surface)" stroke="var(--line)"/><path d="M290 54l-6 12 16-12z" fill="var(--surface)" stroke="var(--line)"/><text x="256" y="39" font-size="19" font-weight="900" text-anchor="middle" fill="var(--text)">「你還好嗎？」</text></g>
+      </svg>
+      <h2>輕拍雙肩、大聲呼喊</h2>
+      <ul class="checklist">
+        <li><span class="num">1</span><div>先確認周圍安全（車流、電線、火、水）。</div></li>
+        <li><span class="num">2</span><div>拍打雙肩、大聲叫：「<strong>你還好嗎？你怎麼了？</strong>」</div></li>
+        <li><span class="num">3</span><div>看有沒有睜眼、說話、動作、呻吟。</div></li>
+      </ul>
+    </main>
+    <footer class="actions">
+      <button class="btn btn-success btn-xl" data-nav="responsive"><svg class="ic"><use href="#i-check"/></svg>有反應／會動</button>
+      <button class="btn btn-primary btn-xl" data-nav="check-breath"><svg class="ic"><use href="#i-alert"/></svg>沒有反應 → 檢查呼吸</button>
+    </footer>
+  </section>
+
+  <!-- ===================== 有反應 ===================== -->
+  <section class="screen" data-screen="responsive" hidden>
+    <header class="topbar">
+      <button class="icon-btn" data-nav="check-respond" aria-label="返回"><svg class="ic"><use href="#i-back"/></svg></button>
+      <div class="title">病患有反應</div>
+      <a class="btn btn-call btn-sm" href="tel:119"><svg class="ic"><use href="#i-phone"/></svg>119</a>
+    </header>
+    <main class="content">
+      <div class="verdict ok">
+        <div class="verdict-head"><div class="verdict-icon"><svg class="ic"><use href="#i-check"/></svg></div><div><div class="verdict-kicker">有反應</div><div class="verdict-title">現在不需要 CPR</div></div></div>
+        <p class="verdict-body">但如果他<strong>胸痛、呼吸困難、意識模糊、無法正常說話、臉歪嘴斜</strong>，或情況變差，請立刻撥打 119。</p>
+        <ol class="next-steps">
+          <li>陪在身邊，持續觀察意識與呼吸，不要餵食。</li>
+          <li>若之後叫不醒或呼吸變得不正常，馬上回到「檢查呼吸」。</li>
+        </ol>
+      </div>
+    </main>
+    <footer class="actions">
+      <a class="btn btn-call btn-xl" href="tel:119"><svg class="ic"><use href="#i-phone"/></svg>撥打 119</a>
+      <button class="btn btn-outline" data-nav="check-breath">情況變了 → 重新檢查呼吸</button>
+      <button class="btn btn-ghost" data-nav="home">回首頁</button>
+    </footer>
+  </section>
+
+  <!-- ===================== 步驟 2：檢查呼吸（鏡頭） ===================== -->
+  <section class="screen" data-screen="check-breath" hidden>
+    <header class="topbar">
+      <button class="icon-btn" data-nav="check-respond" aria-label="返回"><svg class="ic"><use href="#i-back"/></svg></button>
+      <div class="title" id="breathTitle">檢查呼吸<small>步驟 2／3　觀察 10 秒</small></div>
+      <a class="btn btn-call btn-sm" href="tel:119"><svg class="ic"><use href="#i-phone"/></svg>119</a>
+    </header>
+    <div class="stepper" aria-hidden="true"><span class="done"></span><span class="now"></span><span></span></div>
+    <main class="content no-pad">
+      <div class="cam-wrap" id="camWrap">
+        <video id="cam" playsinline muted autoplay></video>
+        <canvas id="overlay"></canvas>
+        <div class="cam-msg" id="camMsg"><div class="spin"></div><div>正在開啟鏡頭…</div></div>
+        <div class="cam-hud">
+          <div class="hud-chip" id="hudReady"><span class="dot"></span><span>準備中</span></div>
+          <div class="hud-chip" id="hudMic"><span class="dot"></span><span>麥克風</span></div>
+          <div class="hud-chip" id="hudFps"><span class="dot"></span><span>— fps</span></div>
+        </div>
+        <div class="hud-right">
+          <button class="hud-btn" id="btnTorch" aria-label="手電筒" hidden><svg class="ic"><use href="#i-torch"/></svg></button>
+          <button class="hud-btn" id="btnFlip" aria-label="切換前後鏡頭"><svg class="ic"><use href="#i-refresh"/></svg></button>
+        </div>
+      </div>
+      <div class="cam-guide" id="camGuide">
+        <svg class="illus small" viewBox="0 0 360 150" aria-hidden="true">
+          <rect x="0" y="126" width="360" height="6" rx="3" fill="var(--floor)"/>
+          <circle cx="54" cy="106" r="18" fill="var(--skin)"/>
+          <rect x="70" y="92" width="130" height="34" rx="16" fill="var(--cloth)"/>
+          <rect x="196" y="98" width="110" height="26" rx="12" fill="var(--pants)"/>
+          <rect x="118" y="96" width="46" height="26" rx="4" fill="none" stroke="#fff" stroke-width="2"/>
+          <rect x="118" y="96" width="46" height="26" rx="4" fill="none" stroke="var(--primary)" stroke-width="2" stroke-dasharray="5 4"/>
+          <g transform="rotate(-8 141 40)"><rect x="121" y="14" width="40" height="56" rx="7" fill="var(--phone)"/><rect x="125" y="19" width="32" height="46" rx="4" fill="var(--surface)"/><rect x="129" y="27" width="24" height="18" rx="2" fill="none" stroke="var(--primary)" stroke-width="1.5" stroke-dasharray="3 2"/></g>
+          <path d="M126 70L118 96 M158 68l6 28" stroke="var(--primary)" stroke-width="1.5" stroke-dasharray="4 3" fill="none"/>
+          <path d="M232 22v70" stroke="var(--muted)" stroke-width="2"/><path d="M226 30l6-8 6 8 M226 84l6 8 6-8" fill="none" stroke="var(--muted)" stroke-width="2"/>
+          <text x="244" y="60" font-size="13" font-weight="800" fill="var(--text)">30–60 公分</text>
+          <text x="244" y="78" font-size="11" fill="var(--muted)">手肘靠膝蓋，拿穩</text>
+        </svg>
+        <ol>
+          <li>讓病患<strong>平躺</strong>，露出胸口或上腹（拉開厚外套）。</li>
+          <li>把<strong>白色方框對準胸口／上腹</strong>，畫面裡要看得到衣服或皮膚的紋理。</li>
+          <li><strong>手機拿穩</strong>（手肘靠在膝蓋或地上），按「開始觀察」。</li>
+        </ol>
+      </div>
+      <div class="live-status" id="liveStatus" hidden>
+        <div class="live-text" id="liveText">觀察中…</div>
+        <div class="live-sub" id="liveSub">請保持手機穩定，看著胸口</div>
+        <div class="live-breaths" id="liveBreaths"><span class="dot"></span><span id="liveBreathsText">偵測起伏中</span></div>
+      </div>
+      <details class="compare" id="compare">
+        <summary><svg class="ic"><use href="#i-lungs"/></svg>瀕死呼吸長什麼樣子？（可一邊看一邊比對）</summary>
+        <div class="compare-body">
+          <div class="wave-row">
+            <div class="wave-label ok">正常呼吸</div>
+            <div class="wave-box"><svg viewBox="0 0 600 60" preserveAspectRatio="none" class="wave normal"><path d="M0 30 C 15 5, 35 5, 50 30 S 85 55, 100 30 S 135 5, 150 30 S 185 55, 200 30 S 235 5, 250 30 S 285 55, 300 30 S 335 5, 350 30 S 385 55, 400 30 S 435 5, 450 30 S 485 55, 500 30 S 535 5, 550 30 S 585 55, 600 30" /></svg></div>
+            <div class="wave-desc">規律、連續、安靜，每分鐘約 12–20 次，胸口平順起伏。</div>
+          </div>
+          <div class="wave-row">
+            <div class="wave-label bad">瀕死呼吸（喘息）</div>
+            <div class="wave-box"><svg viewBox="0 0 600 60" preserveAspectRatio="none" class="wave agonal"><path d="M0 40 L 60 40 L 66 8 L 74 46 L 80 40 L 250 40 L 256 12 L 262 48 L 268 40 L 470 40 L 476 6 L 484 44 L 490 40 L 600 40" /></svg></div>
+            <div class="wave-desc">突然張口<strong>用力吸一口</strong>（像魚離水），可能有<strong>鼾聲、呻吟、咕嚕聲</strong>；之後好幾秒完全不動；每分鐘常只有幾次、毫無規律。</div>
+          </div>
+          <div class="callout">看到這種情形 ＝ 心臟可能已停止。<strong>不用再確認</strong>，立刻撥 119 並開始 CPR。</div>
+        </div>
+      </details>
+    </main>
+    <footer class="actions" id="breathActions"></footer>
+  </section>
+
+  <!-- ===================== 判讀結果 ===================== -->
+  <section class="screen" data-screen="result" hidden>
+    <header class="topbar">
+      <button class="icon-btn" data-nav="check-breath" aria-label="返回"><svg class="ic"><use href="#i-back"/></svg></button>
+      <div class="title">判讀結果<small>步驟 3／3</small></div>
+      <a class="btn btn-call btn-sm" href="tel:119"><svg class="ic"><use href="#i-phone"/></svg>119</a>
+    </header>
+    <div class="stepper" aria-hidden="true"><span class="done"></span><span class="done"></span><span class="now"></span></div>
+    <main class="content">
+      <div class="verdict" id="verdictCard">
+        <div class="verdict-head">
+          <div class="verdict-icon" id="verdictIcon"><svg class="ic"><use href="#i-alert"/></svg></div>
+          <div><div class="verdict-kicker" id="verdictKicker">—</div><div class="verdict-title" id="verdictTitle">—</div></div>
+        </div>
+        <p class="verdict-body" id="verdictBody">—</p>
+        <div class="recheck" id="recheckTimer" hidden><svg class="ic"><use href="#i-timer"/></svg><span></span></div>
+        <ol class="next-steps" id="nextSteps"></ol>
+        <ul class="reasons" id="verdictReasons"></ul>
+        <div class="metrics" id="verdictMetrics"></div>
+      </div>
+      <div class="loc-card" id="locCard">
+        <div class="loc-title"><svg class="ic"><use href="#i-pin"/></svg>你的位置（撥 119 時告訴接線員）</div>
+        <div class="loc-body" id="locBody">定位中…</div>
+      </div>
+      <div class="mini-wave"><canvas id="resultWave" height="76"></canvas></div>
+    </main>
+    <footer class="actions" id="resultActions"></footer>
+  </section>
+
+  <!-- ===================== CPR 引導 ===================== -->
+  <section class="screen" data-screen="cpr" hidden>
+    <header class="topbar cpr-bar">
+      <button class="icon-btn" id="btnCprHome" aria-label="首頁"><svg class="ic"><use href="#i-home"/></svg></button>
+      <div class="cpr-timer"><span id="cprTimer">00:00</span><small id="cprTimerSub">CPR 計時</small></div>
+      <button class="icon-btn" id="btnMute" aria-label="靜音"><svg class="ic"><use href="#i-vol"/></svg></button>
+      <a class="btn btn-call btn-sm" href="tel:119"><svg class="ic"><use href="#i-phone"/></svg>119</a>
+    </header>
+    <nav class="steptabs" id="stepTabs" aria-label="CPR 步驟">
+      <button data-step="call1">叫<small>反應</small></button>
+      <button data-step="call2">叫<small>求救</small></button>
+      <button data-step="c">C<small>壓胸</small></button>
+      <button data-step="a">A<small>呼吸道</small></button>
+      <button data-step="b">B<small>吹氣</small></button>
+      <button data-step="d">D<small>AED</small></button>
+    </nav>
+    <main class="content" id="cprContent">
+      <!-- 叫 1 -->
+      <div class="step-panel" data-panel="call1">
+        <div class="step-head"><span class="badge">叫</span><h2>確認反應</h2></div>
+        <ul class="bullets big">
+          <li>拍打雙肩、大聲喊「你還好嗎？」</li>
+          <li>沒有反應、沒有正常呼吸（或只有喘息）→ 當作心跳停止。</li>
+        </ul>
+        <button class="btn btn-primary btn-xl" data-step-next="call2">下一步：求救 <svg class="ic"><use href="#i-next"/></svg></button>
+      </div>
+      <!-- 叫 2 -->
+      <div class="step-panel" data-panel="call2">
+        <div class="step-head"><span class="badge">叫</span><h2>求救、拿 AED</h2></div>
+        <ul class="checklist">
+          <li><span class="num">1</span><div><strong>撥打 119</strong>，開<strong>擴音</strong>放旁邊，照接線員指示做。</div></li>
+          <li><span class="num">2</span><div>指著特定的人說：「<strong>你</strong>，去拿 AED！」「<strong>你</strong>，去路口帶救護車！」</div></li>
+          <li><span class="num">3</span><div>告訴 119：地點、病患<strong>沒有反應、沒有正常呼吸</strong>。</div></li>
+        </ul>
+        <div class="loc-card compact"><div class="loc-title"><svg class="ic"><use href="#i-pin"/></svg>你的位置</div><div class="loc-body" id="locBodyCpr">定位中…</div></div>
+        <a class="btn btn-call btn-xl" href="tel:119"><svg class="ic"><use href="#i-phone"/></svg>撥打 119（擴音）</a>
+        <button class="btn btn-outline" data-nav="aed"><svg class="ic"><use href="#i-bolt"/></svg>找最近的 AED</button>
+        <button class="btn btn-primary btn-xl" data-step-next="c">下一步：開始壓胸 <svg class="ic"><use href="#i-next"/></svg></button>
+      </div>
+      <!-- C -->
+      <div class="step-panel" data-panel="c">
+        <div class="metro">
+          <div class="metro-stage">
+            <div class="metro-echo" id="metroEcho"></div>
+            <div class="metro-ring paused" id="metroRing">
+              <div class="metro-count" id="metroCount">—</div>
+              <div class="metro-label" id="metroLabel">按「開始節拍」</div>
+              <div class="metro-bpm"><span id="metroBpm">110</span> 下／分</div>
+            </div>
+          </div>
+          <div class="metro-cycle" id="metroCycle">用力壓、快快壓、胸回彈、莫中斷</div>
+          <div class="metro-stats">
+            <div class="stat"><b id="statTotal">0</b><span>已壓次數</span></div>
+            <div class="stat" id="statSwap"><b id="swapTimer">2:00</b><span>換手倒數</span></div>
+            <div class="stat"><b id="statCycles">0</b><span>組（30 下）</span></div>
+          </div>
+        </div>
+        <div class="metro-controls">
+          <button class="btn btn-primary btn-xl" id="btnMetro"><svg class="ic"><use href="#i-play"/></svg>開始節拍</button>
+          <div class="bpm-row">
+            <button class="btn btn-outline btn-sm" id="bpmDown">－ 慢</button>
+            <button class="btn btn-outline btn-sm" id="bpmUp">＋ 快</button>
+            <label class="switch"><input type="checkbox" id="ventToggle" /> <span>30:2（含吹氣）</span></label>
+          </div>
+        </div>
+        <svg class="illus" viewBox="0 0 360 200" aria-hidden="true">
+          <!-- 左：正面手位 -->
+          <path d="M20 40q20-16 44-18 8 0 12-10 4 10 12 10 24 2 44 18v28q0 26-8 46-14 26-48 26T28 114q-8-20-8-46z" fill="var(--skin)"/>
+          <circle cx="56" cy="92" r="3" fill="var(--skin-dark)"/><circle cx="120" cy="92" r="3" fill="var(--skin-dark)"/>
+          <path d="M56 92h64" stroke="var(--primary)" stroke-width="1.6" stroke-dasharray="4 3"/>
+          <ellipse cx="88" cy="100" rx="17" ry="12" fill="var(--skin-dark)" opacity=".85"/>
+          <ellipse cx="88" cy="96" rx="16" ry="11" fill="#e2b088"/>
+          <circle cx="88" cy="100" r="5" fill="none" stroke="var(--primary)" stroke-width="2.4"/>
+          <text x="88" y="150" font-size="12" font-weight="800" text-anchor="middle" fill="var(--primary)">胸骨下半段</text>
+          <text x="88" y="166" font-size="11" text-anchor="middle" fill="var(--muted)">兩乳頭連線中點</text>
+          <!-- 右：側面姿勢 -->
+          <rect x="176" y="172" width="184" height="6" rx="3" fill="var(--floor)"/>
+          <circle cx="206" cy="152" r="16" fill="var(--skin)"/>
+          <rect x="222" y="140" width="120" height="32" rx="15" fill="var(--cloth)"/>
+          <circle cx="322" cy="46" r="17" fill="var(--skin)"/>
+          <path d="M306 42q4-18 20-16t12 16q-7-6-16-4t-16 4z" fill="var(--hair)"/>
+          <path d="M312 62q-26 10-30 46l-4 32q-2 12 8 20l30 4 6-52q6-30-10-50z" fill="var(--cloth2)"/>
+          <path d="M306 76L272 140" stroke="var(--skin)" stroke-width="13" stroke-linecap="round"/>
+          <path d="M318 78L278 142" stroke="var(--skin)" stroke-width="13" stroke-linecap="round"/>
+          <ellipse cx="272" cy="144" rx="15" ry="8" fill="var(--skin-dark)"/>
+          <path d="M272 144V112" stroke="var(--primary)" stroke-width="1.6" stroke-dasharray="4 3"/>
+          <path d="M252 134l40-1" stroke="var(--primary)" stroke-width="1.6" stroke-dasharray="4 3"/>
+          <text x="196" y="30" font-size="12" font-weight="800" fill="var(--text)">手臂打直、肩膀在手的正上方</text>
+          <text x="196" y="48" font-size="11" fill="var(--muted)">垂直往下壓 5–6 公分</text>
+          <text x="196" y="64" font-size="11" fill="var(--muted)">每次都讓胸口完全回彈</text>
+        </svg>
+        <ul class="bullets big">
+          <li><strong>位置</strong>：胸骨下半段（兩乳頭連線中點）。手掌根重疊、手指扣起、手臂打直。</li>
+          <li><strong>深度 5–6 公分</strong>，每次壓完讓胸口<strong>完全回彈</strong>，中斷不超過 10 秒。</li>
+          <li>累了就換人（約每 2 分鐘）。沒受過訓練或不願吹氣：<strong>只做壓胸</strong>也很有效。</li>
+        </ul>
+        <div class="actions-inline">
+          <button class="btn btn-outline btn-xl" data-step-next="d"><svg class="ic"><use href="#i-bolt"/></svg>AED 到了 → 使用 AED</button>
+          <button class="btn btn-ghost" id="btnToEnd">病患醒了／救護人員接手</button>
+        </div>
+      </div>
+      <!-- A -->
+      <div class="step-panel" data-panel="a">
+        <div class="step-head"><span class="badge">A</span><h2>打開呼吸道（只有要吹氣時）</h2></div>
+        <ul class="bullets big">
+          <li>一手壓額頭、一手抬下巴（<strong>壓額抬下巴</strong>），讓頭向後仰。</li>
+          <li>看口中有無明顯異物，看得到才取出。</li>
+        </ul>
+        <button class="btn btn-primary btn-xl" data-step-next="b">下一步：吹氣 <svg class="ic"><use href="#i-next"/></svg></button>
+        <button class="btn btn-ghost" data-step-next="c">不吹氣，回到壓胸</button>
+      </div>
+      <!-- B -->
+      <div class="step-panel" data-panel="b">
+        <div class="step-head"><span class="badge">B</span><h2>人工呼吸：30 下壓胸後吹 2 口</h2></div>
+        <ul class="bullets big">
+          <li>捏住鼻子、嘴包住嘴，每口<strong>吹 1 秒</strong>，看到胸口微微隆起就好。</li>
+          <li>吹完 2 口<strong>馬上回到壓胸</strong>，不要拖延。</li>
+          <li>沒有面罩、不願意或不熟練 → 只做壓胸即可。</li>
+        </ul>
+        <button class="btn btn-primary btn-xl" data-step-next="c">回到壓胸 <svg class="ic"><use href="#i-next"/></svg></button>
+      </div>
+      <!-- D -->
+      <div class="step-panel" data-panel="d">
+        <div class="step-head"><span class="badge">D</span><h2>AED：開、貼、插、電</h2></div>
+        <svg class="illus small" viewBox="0 0 360 200" aria-hidden="true">
+          <circle cx="180" cy="30" r="22" fill="var(--skin)"/>
+          <path d="M180 52q-66 4-84 36-8 14-6 42l6 60q42 14 84 14t84-14l6-60q2-28-6-42-18-32-84-36z" fill="var(--skin)"/>
+          <path d="M180 66v120" stroke="var(--skin-dark)" stroke-width="2" stroke-dasharray="3 4"/>
+          <circle cx="150" cy="118" r="4" fill="var(--skin-dark)"/><circle cx="210" cy="118" r="4" fill="var(--skin-dark)"/>
+          <rect x="112" y="72" width="42" height="56" rx="8" fill="var(--pad)" transform="rotate(-12 133 100)"/>
+          <rect x="212" y="122" width="42" height="56" rx="8" fill="var(--pad)" transform="rotate(-12 233 150)"/>
+          <circle cx="133" cy="100" r="11" fill="none" stroke="#fff" stroke-width="2"/><text x="133" y="105" font-size="13" font-weight="900" text-anchor="middle" fill="#fff">1</text>
+          <circle cx="233" cy="150" r="11" fill="none" stroke="#fff" stroke-width="2"/><text x="233" y="155" font-size="13" font-weight="900" text-anchor="middle" fill="#fff">2</text>
+          <text x="22" y="66" font-size="12" font-weight="800" fill="var(--text)">① 右鎖骨下方</text>
+          <text x="22" y="82" font-size="11" fill="var(--muted)">（病患的右邊）</text>
+          <text x="280" y="176" font-size="12" font-weight="800" fill="var(--text)">② 左側腋下</text>
+          <text x="280" y="192" font-size="11" fill="var(--muted)">乳頭外側偏下</text>
+        </svg>
+        <ul class="checklist">
+          <li><span class="num">開</span><div>打開 AED 電源，<strong>聽語音指示</strong>。旁人繼續壓胸，不要停。</div></li>
+          <li><span class="num">貼</span><div>擦乾胸口、移除貼布項鍊，貼片貼在<strong>右鎖骨下</strong>與<strong>左側腋下</strong>（照貼片圖）。</div></li>
+          <li><span class="num">插</span><div>把貼片插頭插進 AED。</div></li>
+          <li><span class="num">電</span><div>分析心律時<strong>所有人不要碰病患</strong>；建議電擊時大喊「<strong>離開！</strong>」再按電擊鈕。</div></li>
+        </ul>
+        <button class="btn btn-outline btn-xl aed-pause" id="btnAedPause"><svg class="ic"><use href="#i-pause"/></svg>AED 分析中：暫停、不要碰</button>
+        <button class="btn btn-primary" id="btnAedResume"><svg class="ic"><use href="#i-play"/></svg>電擊後／不建議電擊 → 繼續壓胸</button>
+        <button class="btn btn-ghost" data-nav="aed">找最近的 AED</button>
+      </div>
+      <!-- 結束 -->
+      <div class="step-panel" data-panel="end">
+        <div class="step-head"><span class="badge">✓</span><h2>接下來</h2></div>
+        <div class="card">
+          <h3>病患醒了、會動、或恢復正常呼吸</h3>
+          <svg class="illus small" viewBox="0 0 360 150" aria-hidden="true">
+            <text x="16" y="26" font-size="12" font-weight="800" fill="var(--text)">復甦姿勢（側躺）</text>
+            <text x="16" y="44" font-size="11" fill="var(--muted)">上面的膝蓋彎曲撐在地上</text>
+            <text x="16" y="60" font-size="11" fill="var(--muted)">手墊在臉頰下，頭微後仰、嘴朝下</text>
+            <rect x="0" y="128" width="360" height="6" rx="3" fill="var(--floor)"/>
+            <path d="M48 118h70" stroke="var(--skin)" stroke-width="14" stroke-linecap="round"/>
+            <rect x="86" y="82" width="126" height="42" rx="20" fill="var(--cloth)"/>
+            <circle cx="64" cy="102" r="21" fill="var(--skin)"/>
+            <path d="M44 98q2-19 20-19t19 16q-9-6-19-4t-20 7z" fill="var(--hair)"/>
+            <path d="M120 98l38 24" stroke="var(--skin)" stroke-width="14" stroke-linecap="round"/>
+            <path d="M206 108h106" stroke="var(--pants)" stroke-width="26" stroke-linecap="round"/>
+            <path d="M210 98l44-30 44 50" fill="none" stroke="var(--pants)" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <ol class="next-steps">
+            <li>讓他<strong>側躺</strong>（復甦姿勢），避免嘔吐物嗆到。</li>
+            <li>每分鐘看一次胸口；呼吸一停或變成喘息，<strong>立刻翻回正面繼續壓胸</strong>。</li>
+            <li>保暖、不要餵食，等救護人員到。</li>
+          </ol>
+          <button class="btn btn-outline" data-nav="check-breath">再次檢查呼吸</button>
+        </div>
+        <div class="card">
+          <h3>救護人員接手</h3>
+          <p class="small">告訴他們：倒下的時間、你做了多久 CPR、有沒有用 AED、電擊幾次。</p>
+          <div id="endSummary" class="small"></div>
+          <button class="btn btn-primary" id="btnCprFinish"><svg class="ic"><use href="#i-check"/></svg>結束並回首頁</button>
+        </div>
+        <button class="btn btn-ghost" data-step-next="c">回到壓胸</button>
+      </div>
+    </main>
+  </section>
+
+  <!-- ===================== AED 地圖 ===================== -->
+  <section class="screen" data-screen="aed" hidden>
+    <header class="topbar">
+      <button class="icon-btn" data-back aria-label="返回"><svg class="ic"><use href="#i-back"/></svg></button>
+      <div class="title">附近的 AED</div>
+      <a class="btn btn-call btn-sm" href="tel:119"><svg class="ic"><use href="#i-phone"/></svg>119</a>
+    </header>
+    <main class="content no-pad aed-main">
+      <div id="map" class="map"></div>
+      <div class="aed-list-wrap">
+        <div class="aed-toolbar">
+          <button class="btn btn-outline btn-sm" id="btnLocate"><svg class="ic"><use href="#i-pin"/></svg>重新定位</button>
+          <span class="aed-status" id="aedStatus">載入 AED 資料…</span>
+        </div>
+        <ul class="aed-list" id="aedList"></ul>
+        <p class="note">資料來源：衛生福利部「公共場所 AED 急救資訊網」開放資料。實際位置與開放時間以現場為準；<strong>請旁人去拿，你繼續壓胸。</strong></p>
+      </div>
+    </main>
+  </section>
+
+  <!-- ===================== 認識瀕死呼吸 ===================== -->
+  <section class="screen" data-screen="learn" hidden>
+    <header class="topbar">
+      <button class="icon-btn" data-back aria-label="返回"><svg class="ic"><use href="#i-back"/></svg></button>
+      <div class="title">認識瀕死呼吸</div>
+      <a class="btn btn-call btn-sm" href="tel:119"><svg class="ic"><use href="#i-phone"/></svg>119</a>
+    </header>
+    <main class="content">
+      <h2>什麼是瀕死呼吸？</h2>
+      <p>心臟突然停止後的最初幾分鐘，腦幹還會發出零星的「喘一口」訊號，看起來像在呼吸，其實<strong>身體已經沒有有效的氧氣循環</strong>。研究顯示約三到四成的心臟停止病患在剛倒下時出現這種喘息，旁觀者常把它誤認為「還有呼吸」，因此延誤了 CPR。</p>
+      <div class="card">
+        <h3>怎麼分辨？</h3>
+        <ul class="bullets">
+          <li><strong>頻率低、不規則</strong>：每分鐘只有幾次，兩次之間常隔好幾秒沒動靜。</li>
+          <li><strong>費力、突兀</strong>：像魚離水般張大嘴吸一口、頸部與下巴用力，有時有鼾聲、呻吟或咕嚕聲。</li>
+          <li><strong>沒有反應</strong>：叫不醒、拍不醒，皮膚可能發紫或蒼白。</li>
+          <li>可能伴隨短暫抽搐，容易被誤認為癲癇。</li>
+        </ul>
+      </div>
+      <div class="callout"><strong>沒有反應 ＋ 沒有「正常」呼吸 ＝ 立刻 CPR。</strong><br>不需要摸脈搏，不需要百分之百確定。對一個其實有心跳的人做 CPR 傷害很小；對心臟已停止的人不做 CPR，每延遲 1 分鐘存活率下降約 7–10%。</div>
+      <h3>常見迷思</h3>
+      <ul class="bullets">
+        <li>「他還在喘，應該沒事」→ 稀疏的喘息就是心臟停止的徵兆。</li>
+        <li>「壓斷肋骨會被告」→ 《緊急醫療救護法》第 14-2 條：為免除他人生命急迫危險而急救者，適用民法、刑法緊急避難免責。</li>
+        <li>「我沒學過不能做」→ 只做壓胸（不吹氣）也有效，119 接線員會在電話裡指導你。</li>
+      </ul>
+      <h3>這個 app 怎麼判斷？</h3>
+      <p class="small">鏡頭分析胸口／上腹起伏的頻率、規律性與型態（含手震補償）；麥克風輔助偵測間歇性的喘息聲。任何「不是明確規律呼吸」的結果都會建議你撥 119 並開始 CPR。詳細演算法見專案文件。</p>
+      <h3>參考資料</h3>
+      <ul class="bullets small">
+        <li>American Heart Association, 2025 Guidelines for CPR and ECC — Adult Basic Life Support.</li>
+        <li>內政部消防署／各地消防局：民眾版成人心肺復甦術（叫叫CABD／叫叫壓電）。</li>
+        <li>Chan J, et al. Contactless cardiac arrest detection using smart devices. npj Digital Medicine 2019.</li>
+        <li>衛生福利部 公共場所 AED 急救資訊網。</li>
+      </ul>
+    </main>
+  </section>
+
+  <!-- ===================== 設定 ===================== -->
+  <section class="screen" data-screen="settings" hidden>
+    <header class="topbar">
+      <button class="icon-btn" data-back aria-label="返回"><svg class="ic"><use href="#i-back"/></svg></button>
+      <div class="title">設定</div>
+      <span style="width:44px"></span>
+    </header>
+    <main class="content">
+      <div class="setting col"><label>節拍速度 <output id="setBpmOut">110</output> 下／分</label><input type="range" id="setBpm" min="100" max="120" step="2" /></div>
+      <div class="setting"><label for="setVoice">語音口令</label><input type="checkbox" id="setVoice" class="switch-input" /></div>
+      <div class="setting"><label for="setVibrate">節拍震動（Android）</label><input type="checkbox" id="setVibrate" /></div>
+      <div class="setting"><label for="setVent">預設使用 30:2（含吹氣）</label><input type="checkbox" id="setVent" /></div>
+      <div class="setting"><label for="setMic">檢查呼吸時使用麥克風輔助</label><input type="checkbox" id="setMic" /></div>
+      <div class="setting"><label for="setTorch">太暗時自動開手電筒</label><input type="checkbox" id="setTorch" /></div>
+      <div class="setting"><label>外觀</label><div class="seg" id="segTheme"><button data-v="auto">自動</button><button data-v="light">淺色</button><button data-v="dark">深色</button></div></div>
+      <div class="setting"><label>字體大小</label><div class="seg" id="segText"><button data-v="1">標準</button><button data-v="1.15">大</button><button data-v="1.3">特大</button></div></div>
+      <div class="setting"><label for="setDebug">顯示偵測細節（開發用）</label><input type="checkbox" id="setDebug" /></div>
+      <div class="setting"><span>AI 模型</span><span class="small" id="setModel">未載入（啟發式判斷）</span></div>
+      <div class="setting"><span>版本</span><span class="small" id="setVersion">—</span></div>
+      <button class="btn btn-outline" id="btnIntroAgain">再看一次使用說明與權限設定</button>
+      <button class="btn btn-ghost" id="btnReset">重設所有設定</button>
+      <p class="note">呼救 CPR 是開放原始碼的急救輔助 PWA。不儲存或上傳影像與聲音，所有分析都在你的手機上完成。本 app 不是醫療器材，不能取代 119 接線員與醫療人員的判斷。</p>
+    </main>
+  </section>
+
+</div>
+
+<div class="toast" id="toast" hidden role="status"></div>
+<div class="update-bar" id="updateBar" hidden><svg class="ic"><use href="#i-refresh"/></svg><span style="flex:1">有新版本可用</span><button class="btn btn-primary btn-sm" id="btnUpdate">更新</button></div>
+<div class="sr-only" id="announcer" aria-live="assertive"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin="" defer></script>
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
