@@ -1,0 +1,46 @@
+# 推到 main 就自動部署到 GitHub Pages；每天台灣時間 03:00 重新抓一次衛福部 AED 開放資料再部署。
+# 第一次使用：GitHub → Settings → Pages → Build and deployment → Source 選「GitHub Actions」。
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '0 19 * * *' # UTC 19:00 = 台灣 03:00
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: 更新 AED 開放資料（失敗時沿用範例資料，不中斷部署）
+        run: python3 tools/fetch_aed.py || echo "AED 下載失敗，這次先用 data/aed.sample.json"
+      - name: 單元測試
+        run: node --test tests/detect.test.mjs
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
